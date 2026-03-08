@@ -2,7 +2,7 @@ import {
   Newspaper, FileText, Building2, FileSearch, Hospital, Wrench,
   BarChart3, Bell, User, Settings, Shield, Zap, TrendingUp
 } from 'lucide-react';
-import sidebarLogoImg from '@/assets/sidebar-logo-cropped.png';
+import logoImg from '@/assets/logo.png';
 import { NavLink } from '@/components/NavLink';
 import { useLanguage } from '@/contexts/LanguageContext';
 import {
