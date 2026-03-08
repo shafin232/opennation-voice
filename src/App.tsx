@@ -13,7 +13,6 @@ import CitizenLayout from "@/layouts/CitizenLayout";
 import AdminLayout from "@/layouts/AdminLayout";
 
 // Pages
-import LoginPage from "@/pages/LoginPage";
 import NotFound from "@/pages/NotFound";
 
 // Citizen Pages
