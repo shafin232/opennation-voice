@@ -147,15 +147,22 @@ export default function ReportDetailPage() {
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="glass-panel rounded-2xl overflow-hidden">
         {/* Author */}
         <div className="p-5 flex items-center gap-3">
-          <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center ring-2 ring-primary/20 overflow-hidden">
-            {author?.avatar_url ? (
+          <div className={`h-12 w-12 rounded-full flex items-center justify-center ring-2 overflow-hidden ${
+            isAnon ? 'bg-muted/30 ring-muted/30' : 'bg-primary/10 ring-primary/20'
+          }`}>
+            {isAnon ? (
+              <EyeOff className="h-6 w-6 text-muted-foreground" />
+            ) : author?.avatar_url ? (
               <img src={author.avatar_url} alt="" className="h-full w-full object-cover" />
             ) : (
               <User2 className="h-6 w-6 text-primary" />
             )}
           </div>
           <div className="flex-1">
-            <p className="font-semibold">{author?.name || 'Anonymous'}</p>
+            <div className="flex items-center gap-2">
+              <p className="font-semibold">{isAnon ? '🔒 বেনামী নাগরিক' : (author?.citizen_alias || author?.name || 'Anonymous')}</p>
+              {isAnon && <Badge variant="outline" className="text-[9px] border-muted-foreground/30 text-muted-foreground">গোপনীয়</Badge>}
+            </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span>{timeAgo(report.created_at)}</span>
               <span>·</span>
