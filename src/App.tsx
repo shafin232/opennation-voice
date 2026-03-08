@@ -14,6 +14,7 @@ import AdminLayout from "@/layouts/AdminLayout";
 
 // Pages
 import NotFound from "@/pages/NotFound";
+import LoginPage from "@/pages/LoginPage";
 
 // Citizen Pages
 import FeedPage from "@/pages/citizen/FeedPage";
