@@ -1,10 +1,13 @@
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useApp } from '@/contexts/AppContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Globe, Moon, Sun, Settings, Palette } from 'lucide-react';
+import { Globe, Moon, Sun, Palette } from 'lucide-react';
+import { toast } from 'sonner';
 
 const slamIn = {
   hidden: { scale: 0.92, opacity: 0, y: 12 },
@@ -14,6 +17,18 @@ const slamIn = {
 export default function SettingsPage() {
   const { lang, setLang, t } = useLanguage();
   const { theme, toggleTheme } = useApp();
+  const { user } = useAuth();
+
+  const handleLangChange = async (newLang: 'bn' | 'en') => {
+    setLang(newLang);
+    if (user) {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ language: newLang })
+        .eq('user_id', user.id);
+      if (error) toast.error('ভাষা সংরক্ষণ ব্যর্থ');
+    }
+  };
 
   return (
     <div className="max-w-lg mx-auto space-y-6">
@@ -40,14 +55,14 @@ export default function SettingsPage() {
           <div className="flex gap-2">
             <Button
               variant={lang === 'bn' ? 'default' : 'outline'}
-              onClick={() => setLang('bn')}
+              onClick={() => handleLangChange('bn')}
               className={`gap-1.5 flex-1 rounded-xl h-11 font-semibold ${lang === 'bn' ? 'bg-primary text-primary-foreground glow-neon' : 'border-border/40'}`}
             >
               বাংলা
             </Button>
             <Button
               variant={lang === 'en' ? 'default' : 'outline'}
-              onClick={() => setLang('en')}
+              onClick={() => handleLangChange('en')}
               className={`gap-1.5 flex-1 rounded-xl h-11 font-semibold ${lang === 'en' ? 'bg-primary text-primary-foreground glow-neon' : 'border-border/40'}`}
             >
               English
