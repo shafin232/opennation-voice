@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAdmin } from '@/hooks/useAdmin';
-import { useAlgorithms } from '@/hooks/useAlgorithms';
+import { winRateAnomaly, bidRotation, hhiIndex, executionRisk } from '@/lib/algorithms';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LoadingSkeleton } from '@/components/shared/LoadingSkeleton';
 import { ErrorBanner } from '@/components/shared/ErrorBanner';
