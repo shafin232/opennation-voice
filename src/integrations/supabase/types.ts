@@ -332,11 +332,13 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           district: string
+          effective_trust: number | null
           email: string | null
           id: string
           language: string
           name: string
           phone: string | null
+          reputation_raw: number | null
           trust_score: number
           truth_score: number
           updated_at: string
@@ -346,11 +348,13 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           district?: string
+          effective_trust?: number | null
           email?: string | null
           id?: string
           language?: string
           name?: string
           phone?: string | null
+          reputation_raw?: number | null
           trust_score?: number
           truth_score?: number
           updated_at?: string
@@ -360,11 +364,13 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           district?: string
+          effective_trust?: number | null
           email?: string | null
           id?: string
           language?: string
           name?: string
           phone?: string | null
+          reputation_raw?: number | null
           trust_score?: number
           truth_score?: number
           updated_at?: string
@@ -458,6 +464,8 @@ export type Database = {
       reports: {
         Row: {
           address: string | null
+          approval_decision: string | null
+          authenticity_score: number | null
           author_id: string
           category: string
           created_at: string
@@ -470,11 +478,14 @@ export type Database = {
           status: string
           support_count: number
           title: string
+          truth_probability: number | null
           upazila: string | null
           updated_at: string
         }
         Insert: {
           address?: string | null
+          approval_decision?: string | null
+          authenticity_score?: number | null
           author_id: string
           category?: string
           created_at?: string
@@ -487,11 +498,14 @@ export type Database = {
           status?: string
           support_count?: number
           title: string
+          truth_probability?: number | null
           upazila?: string | null
           updated_at?: string
         }
         Update: {
           address?: string | null
+          approval_decision?: string | null
+          authenticity_score?: number | null
           author_id?: string
           category?: string
           created_at?: string
@@ -504,6 +518,7 @@ export type Database = {
           status?: string
           support_count?: number
           title?: string
+          truth_probability?: number | null
           upazila?: string | null
           updated_at?: string
         }
@@ -549,38 +564,86 @@ export type Database = {
         Row: {
           actual_cost: number
           awarded_to: string
+          bid_rotation_risk: number | null
           created_at: string
           department: string
           estimated_cost: number
+          execution_risk: number | null
+          hhi_index: number | null
           id: string
           risk_factors: string[]
           risk_score: number
           status: string
           tender_title: string
+          win_rate_anomaly: number | null
         }
         Insert: {
           actual_cost?: number
           awarded_to?: string
+          bid_rotation_risk?: number | null
           created_at?: string
           department?: string
           estimated_cost?: number
+          execution_risk?: number | null
+          hhi_index?: number | null
           id?: string
           risk_factors?: string[]
           risk_score?: number
           status?: string
           tender_title: string
+          win_rate_anomaly?: number | null
         }
         Update: {
           actual_cost?: number
           awarded_to?: string
+          bid_rotation_risk?: number | null
           created_at?: string
           department?: string
           estimated_cost?: number
+          execution_risk?: number | null
+          hhi_index?: number | null
           id?: string
           risk_factors?: string[]
           risk_score?: number
           status?: string
           tender_title?: string
+          win_rate_anomaly?: number | null
+        }
+        Relationships: []
+      }
+      user_actions: {
+        Row: {
+          action_type: string
+          created_at: string
+          id: string
+          lat: number | null
+          lng: number | null
+          target_id: string
+          target_type: string
+          user_id: string
+          weight: number
+        }
+        Insert: {
+          action_type?: string
+          created_at?: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          target_id: string
+          target_type?: string
+          user_id: string
+          weight?: number
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          target_id?: string
+          target_type?: string
+          user_id?: string
+          weight?: number
         }
         Relationships: []
       }
