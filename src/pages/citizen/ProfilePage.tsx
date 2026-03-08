@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -6,6 +7,7 @@ import { ReputationBadge } from '@/components/shared/ReputationBadge';
 import { CircularProgress } from '@/components/shared/CircularProgress';
 import { Phone, MapPin, Calendar, Mail, Shield, Activity, Award, ExternalLink } from 'lucide-react';
 import { IntegrityBreakdown } from '@/components/shared/IntegrityBreakdown';
+import { supabase } from '@/integrations/supabase/client';
 
 const slamIn = {
   hidden: { scale: 0.92, opacity: 0, y: 12 },
@@ -16,9 +18,25 @@ const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } };
 export default function ProfilePage() {
   const { user } = useAuth();
   const { t } = useLanguage();
+  const [liveScores, setLiveScores] = useState<{ trust: number; truth: number } | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    console.log('[ProfilePage] Fetching live scores for', user.id);
+    supabase.from('profiles').select('trust_score, truth_score, effective_trust, reputation_raw')
+      .eq('user_id', user.id).single()
+      .then(({ data }) => {
+        if (data) {
+          setLiveScores({ trust: data.trust_score ?? 50, truth: data.truth_score ?? 50 });
+        }
+      });
+  }, [user?.id]);
+
   if (!user) return null;
 
-  const avgScore = Math.round((user.trustScore + user.truthScore) / 2);
+  const trustVal = liveScores?.trust ?? user.trustScore;
+  const truthVal = liveScores?.truth ?? user.truthScore;
+  const avgScore = Math.round((trustVal + truthVal) / 2);
 
   const roleConfig: Record<string, { label: string; color: string }> = {
     citizen: { label: 'Citizen', color: 'badge-neon' },
@@ -72,9 +90,9 @@ export default function ProfilePage() {
 
             {/* Score rings */}
             <div className="flex items-center justify-center gap-12 mt-8">
-              <CircularProgress value={user.trustScore} size={100} strokeWidth={7} label={t('trustScore')} />
+              <CircularProgress value={trustVal} size={100} strokeWidth={7} label={t('trustScore')} />
               <div className="h-14 w-px bg-border/20" />
-              <CircularProgress value={user.truthScore} size={100} strokeWidth={7} label={t('truthScore')} />
+              <CircularProgress value={truthVal} size={100} strokeWidth={7} label={t('truthScore')} />
             </div>
           </div>
         </div>
