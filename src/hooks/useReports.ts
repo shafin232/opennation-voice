@@ -21,6 +21,7 @@ export function useReports() {
       const { data, error: err, count } = await supabase
         .from('reports')
         .select('*', { count: 'exact' })
+        .neq('approval_decision', 'rejected')
         .order('created_at', { ascending: false })
         .range(from, to);
 
