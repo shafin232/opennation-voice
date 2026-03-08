@@ -26,30 +26,52 @@ export function useReports() {
 
       if (err) throw err;
 
+      // Fetch author names
       const authorIds = [...new Set((data ?? []).map((r: any) => r.author_id))];
       const { data: profilesData } = authorIds.length > 0
-        ? await supabase.from('profiles').select('user_id, name').in('user_id', authorIds)
+        ? await supabase.from('profiles').select('user_id, name, avatar_url').in('user_id', authorIds)
         : { data: [] };
-      const nameMap = new Map((profilesData ?? []).map((p: any) => [p.user_id, p.name]));
+      const profileMap = new Map((profilesData ?? []).map((p: any) => [p.user_id, p]));
 
-      const mapped: Report[] = (data ?? []).map((r: any) => ({
-        id: r.id,
-        title: r.title,
-        description: r.description,
-        category: r.category,
-        location: { district: r.district, upazila: r.upazila, address: r.address, lat: r.lat, lng: r.lng },
-        evidence: [],
-        authorId: r.author_id,
-        authorName: nameMap.get(r.author_id) || 'Anonymous',
-        supportCount: r.support_count,
-        doubtCount: r.doubt_count,
-        status: r.status,
-        createdAt: r.created_at,
-        updatedAt: r.updated_at,
-        truthProbability: r.truth_probability,
-        authenticityScore: r.authenticity_score,
-        approvalDecision: r.approval_decision,
-      }));
+      // Fetch current user's votes on these reports
+      const { data: { user } } = await supabase.auth.getUser();
+      let userVotesMap = new Map<string, 'support' | 'doubt'>();
+      if (user && data && data.length > 0) {
+        const reportIds = data.map((r: any) => r.id);
+        const { data: userVotes } = await supabase
+          .from('votes')
+          .select('report_id, vote_type')
+          .eq('user_id', user.id)
+          .in('report_id', reportIds);
+
+        for (const v of userVotes ?? []) {
+          userVotesMap.set(v.report_id, v.vote_type as 'support' | 'doubt');
+        }
+      }
+
+      const mapped: Report[] = (data ?? []).map((r: any) => {
+        const profile = profileMap.get(r.author_id);
+        return {
+          id: r.id,
+          title: r.title,
+          description: r.description,
+          category: r.category,
+          location: { district: r.district, upazila: r.upazila, address: r.address, lat: r.lat, lng: r.lng },
+          evidence: [],
+          authorId: r.author_id,
+          authorName: profile?.name || 'Anonymous',
+          authorAvatar: profile?.avatar_url || undefined,
+          supportCount: r.support_count,
+          doubtCount: r.doubt_count,
+          userVote: userVotesMap.get(r.id) || null,
+          status: r.status,
+          createdAt: r.created_at,
+          updatedAt: r.updated_at,
+          truthProbability: r.truth_probability,
+          authenticityScore: r.authenticity_score,
+          approvalDecision: r.approval_decision,
+        };
+      });
 
       setReports(prev => reset ? mapped : [...prev, ...mapped]);
       setHasMore((count ?? 0) > pageNum * LIMIT);

@@ -20,7 +20,19 @@ export function useVoting() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // --- Algorithm: Get geographic vote weight ---
+      // --- PREVENT SELF-VOTING ---
+      const { data: report } = await supabase
+        .from('reports')
+        .select('author_id')
+        .eq('id', payload.reportId)
+        .single();
+
+      if (report?.author_id === user.id) {
+        setError('নিজের রিপোর্টে ভোট দেওয়া যাবে না');
+        return null;
+      }
+
+      // --- Algorithm: Get geographic vote weight (non-blocking) ---
       try {
         const { data: profile } = await supabase
           .from('profiles')
@@ -28,9 +40,9 @@ export function useVoting() {
           .eq('user_id', user.id)
           .single();
 
-        await weightVote(payload.reportId, undefined, undefined, profile?.district);
+        weightVote(payload.reportId, undefined, undefined, profile?.district).catch(() => {});
       } catch {
-        // If algorithm fails, continue with default
+        // If algorithm fails, continue
       }
 
       // Upsert vote
@@ -43,10 +55,8 @@ export function useVoting() {
 
       if (err) throw err;
 
-      // --- Algorithm: Log action (non-blocking) ---
+      // --- Algorithm: Log action & recompute reputation (non-blocking) ---
       logAction(user.id, 'vote', payload.reportId, 'report').catch(() => {});
-
-      // --- Algorithm: Recompute reputation (non-blocking) ---
       computeReputation(user.id).catch(() => {});
 
       // Get updated counts
