@@ -87,13 +87,17 @@ export default function ReportDetailPage() {
     if (data && data.length > 0) {
       const userIds = [...new Set(data.map(c => c.user_id))];
       const { data: profiles } = await supabase
-        .from('profiles').select('user_id, name').in('user_id', userIds);
-      const map = new Map((profiles ?? []).map(p => [p.user_id, p.name]));
+        .from('profiles').select('user_id, name, citizen_alias').in('user_id', userIds);
+      const map = new Map((profiles ?? []).map(p => [p.user_id, p]));
 
-      setComments(data.map(c => ({
-        id: c.id, body: c.body, userName: map.get(c.user_id) || 'Anonymous',
-        createdAt: c.created_at, userId: c.user_id,
-      })));
+      setComments(data.map(c => {
+        const p = map.get(c.user_id);
+        return {
+          id: c.id, body: c.body,
+          userName: (p as any)?.citizen_alias || p?.name || 'Anonymous',
+          createdAt: c.created_at, userId: c.user_id,
+        };
+      }));
     }
   };
 
