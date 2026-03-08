@@ -1,6 +1,6 @@
 import {
   Shield, AlertTriangle, TrendingUp, CheckCircle, FileSearch, Unlock,
-  Activity, Archive, ScrollText, MapPin, UserCog
+  Activity, Archive, ScrollText, MapPin, UserCog, BarChart3
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useLanguage } from '@/contexts/LanguageContext';
