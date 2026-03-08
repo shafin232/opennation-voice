@@ -91,6 +91,31 @@ export function useReports() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
+      // Anti-bot: Check recent submission rate (max 5 reports in 10 minutes)
+      const tenMinAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+      const { count: recentCount } = await supabase
+        .from('reports')
+        .select('id', { count: 'exact', head: true })
+        .eq('author_id', user.id)
+        .gte('created_at', tenMinAgo);
+
+      if ((recentCount ?? 0) >= 5) {
+        throw new Error('অতিরিক্ত রিপোর্ট সাবমিশন। অনুগ্রহ করে কিছুক্ষণ পর চেষ্টা করুন।');
+      }
+
+      // Anti-bot: Check for duplicate title in last hour
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+      const { count: dupCount } = await supabase
+        .from('reports')
+        .select('id', { count: 'exact', head: true })
+        .eq('author_id', user.id)
+        .eq('title', submission.title)
+        .gte('created_at', oneHourAgo);
+
+      if ((dupCount ?? 0) > 0) {
+        throw new Error('একই শিরোনামে রিপোর্ট ইতিমধ্যে জমা করা হয়েছে।');
+      }
+
       const { data, error: err } = await supabase
         .from('reports')
         .insert({
