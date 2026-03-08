@@ -2,7 +2,7 @@ import {
   Newspaper, FileText, Building2, FileSearch, Hospital, Wrench,
   BarChart3, Bell, User, Settings, Shield, Zap, TrendingUp
 } from 'lucide-react';
-import sidebarLogoImg from '@/assets/sidebar-logo-cropped.png';
+import logoImg from '@/assets/logo.png';
 import { NavLink } from '@/components/NavLink';
 import { useLanguage } from '@/contexts/LanguageContext';
 import {
@@ -55,11 +55,11 @@ export function CitizenSidebar() {
       <SidebarHeader className="p-4 pb-3">
         {!collapsed ? (
           <div className="flex items-center gap-3">
-            <img src={sidebarLogoImg} alt="OpenNation" className="h-16 object-contain" />
+            <img src={logoImg} alt="OpenNation" className="h-16 object-contain" />
           </div>
         ) : (
           <div className="flex justify-center">
-            <img src={sidebarLogoImg} alt="OpenNation" className="h-11 w-11 object-contain" />
+            <img src={logoImg} alt="OpenNation" className="h-11 w-11 object-contain" />
           </div>
         )}
       </SidebarHeader>
