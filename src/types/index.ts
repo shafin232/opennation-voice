@@ -120,14 +120,25 @@ export interface GovernmentProject {
   department: string;
   budget: number;
   district: string;
-  status: 'proposed' | 'approved' | 'ongoing' | 'completed' | 'frozen';
+  status: 'proposed' | 'approved' | 'ongoing' | 'completed' | 'frozen' | 'revision_required';
   startDate?: string;
   endDate?: string;
   opinionCount: number;
   approvalStatus: 'pending' | 'approved' | 'rejected';
   isFrozen: boolean;
   createdAt: string;
+  needCount: number;
+  modifyCount: number;
+  rejectCount: number;
+  approvalPercent: number;
+  impactIncome: string;
+  impactEnvironment: string;
+  impactDisplacement: number;
+  affectedPopulation: number;
+  userVote?: 'need' | 'modify' | 'reject' | null;
 }
+
+export type ProjectVoteType = 'need' | 'modify' | 'reject';
 
 export interface ProjectOpinion {
   id: string;
