@@ -46,12 +46,12 @@ export function useNotifications() {
 
       if (err) throw err;
 
-      setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
-      setUnreadCount(prev => Math.max(0, prev - 1));
+      // Refetch from server after confirmed update
+      await fetchNotifications();
     } catch (err: any) {
       setError(err.message || 'Failed to mark notification');
     }
-  }, []);
+  }, [fetchNotifications]);
 
   return { notifications, unreadCount, loading, error, fetchNotifications, markRead };
 }
