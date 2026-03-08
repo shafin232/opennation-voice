@@ -4,6 +4,7 @@ import type {
   ModerationItem, TenderAnalysis, AuditLog, IdentityUnlockRequest,
   VoteAnomaly, CrisisMode
 } from '@/types';
+import { computeTruth, computeReputation } from '@/lib/algorithms';
 
 export function useAdmin() {
   const [loading, setLoading] = useState(false);

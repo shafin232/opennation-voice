@@ -55,9 +55,10 @@ export function useVoting() {
 
       if (err) throw err;
 
-      // --- Algorithm: Log action & recompute reputation (non-blocking) ---
+      // --- Algorithm: Log action, recompute reputation & truth (non-blocking) ---
       logAction(user.id, 'vote', payload.reportId, 'report').catch(() => {});
       computeReputation(user.id).catch(() => {});
+      computeTruth(payload.reportId).catch(() => {});
 
       // Get updated counts
       const { count: supportCount } = await supabase
