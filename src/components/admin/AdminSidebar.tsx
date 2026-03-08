@@ -1,6 +1,6 @@
 import {
   Shield, AlertTriangle, TrendingUp, CheckCircle, FileSearch, Unlock,
-  Activity, Archive, ScrollText, MapPin, UserCog, BarChart3
+  Activity, Archive, ScrollText, MapPin, UserCog, BarChart3, Hospital
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -41,6 +41,12 @@ export function AdminSidebar() {
         { title: 'প্রকল্প ম্যানেজমেন্ট', url: '/admin/project-approval', icon: CheckCircle },
         { title: t('rtiResponse'), url: '/admin/rti-response', icon: FileSearch },
         ...(isSuperadmin ? [{ title: t('identityUnlock'), url: '/admin/identity-unlock', icon: Unlock }] : []),
+      ],
+    },
+    {
+      label: 'ডেটা ম্যানেজমেন্ট',
+      items: [
+        { title: 'হাসপাতাল ম্যানেজমেন্ট', url: '/admin/hospitals', icon: Hospital },
       ],
     },
     {

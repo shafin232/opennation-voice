@@ -44,6 +44,7 @@ import AuditLogsPage from "@/pages/admin/AuditLogsPage";
 import DistrictIntegrityPage from "@/pages/admin/DistrictIntegrityPage";
 import UserManagementPage from "@/pages/admin/UserManagementPage";
 import AnalyticsPage from "@/pages/admin/AnalyticsPage";
+import HospitalManagementPage from "@/pages/admin/HospitalManagementPage";
 
 const queryClient = new QueryClient();
 
@@ -104,6 +105,7 @@ const App = () => (
                   <Route path="district-integrity" element={<DistrictIntegrityPage />} />
                   <Route path="user-management" element={<UserManagementPage />} />
                   <Route path="analytics" element={<AnalyticsPage />} />
+                  <Route path="hospitals" element={<HospitalManagementPage />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />
