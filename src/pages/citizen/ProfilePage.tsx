@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { ReputationBadge } from '@/components/shared/ReputationBadge';
 import { CircularProgress } from '@/components/shared/CircularProgress';
 import { Phone, MapPin, Calendar, Mail, Shield, Activity, Award, ExternalLink } from 'lucide-react';
+import { IntegrityBreakdown } from '@/components/shared/IntegrityBreakdown';
 
 const slamIn = {
   hidden: { scale: 0.92, opacity: 0, y: 12 },
@@ -118,6 +119,9 @@ export default function ProfilePage() {
           </span>
         </div>
       </motion.div>
+
+      {/* Integrity Points Breakdown */}
+      <IntegrityBreakdown userId={user.id} />
     </div>
   );
 }
