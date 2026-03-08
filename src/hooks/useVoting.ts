@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { VotePayload, VoteResponse } from '@/types';
 import { useApp } from '@/contexts/AppContext';
-import { weightVote, logAction, computeReputation } from '@/lib/algorithms';
+import { weightVote, logAction, computeReputation, computeTruth } from '@/lib/algorithms';
 
 export function useVoting() {
   const [loading, setLoading] = useState(false);
@@ -55,9 +55,10 @@ export function useVoting() {
 
       if (err) throw err;
 
-      // --- Algorithm: Log action & recompute reputation (non-blocking) ---
+      // --- Algorithm: Log action, recompute reputation & truth (non-blocking) ---
       logAction(user.id, 'vote', payload.reportId, 'report').catch(() => {});
       computeReputation(user.id).catch(() => {});
+      computeTruth(payload.reportId).catch(() => {});
 
       // Get updated counts
       const { count: supportCount } = await supabase
