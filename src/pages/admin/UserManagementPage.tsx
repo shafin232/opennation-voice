@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Users, Shield, Search, UserCog } from 'lucide-react';
+import { Users, Shield, Search, UserCog, UserPlus, Loader2 } from 'lucide-react';
 import type { UserRole } from '@/types';
 
 interface ProfileWithRole {
@@ -39,6 +41,12 @@ export default function UserManagementPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [newEmail, setNewEmail] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [newName, setNewName] = useState('');
+  const [newDistrict, setNewDistrict] = useState('');
+  const [newRole, setNewRole] = useState<UserRole>('admin');
 
   const isSuperadmin = user?.role === 'superadmin';
 
@@ -71,7 +79,6 @@ export default function UserManagementPage() {
 
   const updateRole = useMutation({
     mutationFn: async ({ userId, newRole }: { userId: string; newRole: UserRole }) => {
-      // Upsert: delete old then insert new
       const { error: delErr } = await supabase
         .from('user_roles')
         .delete()
@@ -89,6 +96,37 @@ export default function UserManagementPage() {
     },
     onError: (err: any) => {
       toast.error(err.message || 'Role আপডেট ব্যর্থ');
+    },
+  });
+
+  const inviteUser = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke('invite-user', {
+        body: {
+          email: newEmail,
+          password: newPassword,
+          name: newName,
+          district: newDistrict,
+          role: newRole,
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      toast.success('নতুন ইউজার যোগ হয়েছে!');
+      setDialogOpen(false);
+      setNewEmail('');
+      setNewPassword('');
+      setNewName('');
+      setNewDistrict('');
+      setNewRole('admin');
+    },
+    onError: (err: any) => {
+      toast.error(err.message || 'ইউজার যোগ করা ব্যর্থ');
     },
   });
 
@@ -118,16 +156,107 @@ export default function UserManagementPage() {
   return (
     <div className="flex-1 p-4 md:p-6 space-y-6 max-w-5xl">
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-          <UserCog className="h-5 w-5 text-primary" />
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+            <UserCog className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold font-bengali text-foreground">ইউজার ম্যানেজমেন্ট</h1>
+            <p className="text-xs text-muted-foreground font-bengali">
+              মোট {users.length} জন ইউজার
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-xl font-bold font-bengali text-foreground">ইউজার ম্যানেজমেন্ট</h1>
-          <p className="text-xs text-muted-foreground font-bengali">
-            মোট {users.length} জন ইউজার
-          </p>
-        </div>
+
+        {/* Add User Button */}
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="font-bengali gap-2" size="sm">
+              <UserPlus className="h-4 w-4" />
+              নতুন ইউজার যোগ করুন
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="font-bengali">নতুন ইউজার তৈরি করুন</DialogTitle>
+            </DialogHeader>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                inviteUser.mutate();
+              }}
+              className="space-y-4 pt-2"
+            >
+              <div className="space-y-2">
+                <Label className="font-bengali text-xs">নাম</Label>
+                <Input
+                  placeholder="ইউজারের নাম"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  className="font-bengali"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="font-bengali text-xs">ইমেইল *</Label>
+                <Input
+                  type="email"
+                  required
+                  placeholder="user@example.com"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="font-bengali text-xs">পাসওয়ার্ড *</Label>
+                <Input
+                  type="password"
+                  required
+                  minLength={6}
+                  placeholder="ন্যূনতম ৬ অক্ষর"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="font-bengali"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="font-bengali text-xs">জেলা</Label>
+                <Input
+                  placeholder="যেমন: ঢাকা"
+                  value={newDistrict}
+                  onChange={(e) => setNewDistrict(e.target.value)}
+                  className="font-bengali"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="font-bengali text-xs">Role *</Label>
+                <Select value={newRole} onValueChange={(v) => setNewRole(v as UserRole)}>
+                  <SelectTrigger className="font-bengali text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="citizen" className="font-bengali">নাগরিক</SelectItem>
+                    <SelectItem value="moderator" className="font-bengali">মডারেটর</SelectItem>
+                    <SelectItem value="admin" className="font-bengali">অ্যাডমিন</SelectItem>
+                    <SelectItem value="superadmin" className="font-bengali">সুপার অ্যাডমিন</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button
+                type="submit"
+                className="w-full font-bengali gap-2"
+                disabled={inviteUser.isPending}
+              >
+                {inviteUser.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <UserPlus className="h-4 w-4" />
+                )}
+                ইউজার তৈরি করুন
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Search */}
@@ -160,7 +289,6 @@ export default function UserManagementPage() {
           {filtered.map((u) => (
             <Card key={u.user_id} className="border-border/40 hover:border-border/60 transition-colors">
               <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-                {/* Avatar & Info */}
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                     <span className="text-sm font-bold text-primary">
@@ -182,12 +310,10 @@ export default function UserManagementPage() {
                   </div>
                 </div>
 
-                {/* Current Role Badge */}
                 <Badge variant="outline" className={`shrink-0 font-bengali text-[11px] ${ROLE_COLORS[u.role]}`}>
                   {ROLE_LABELS[u.role]}
                 </Badge>
 
-                {/* Role Selector */}
                 {u.user_id !== user?.id ? (
                   <Select
                     value={u.role}
