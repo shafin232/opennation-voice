@@ -8,9 +8,8 @@ import { ConfirmModal } from '@/components/shared/ConfirmModal';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { CheckCircle, X } from 'lucide-react';
+import { CheckCircle, X, Banknote, MapPin, Building2 } from 'lucide-react';
 
 export default function ProjectApprovalPage() {
   const { projects, loading, error, fetchProjects } = useProjects();
@@ -34,34 +33,55 @@ export default function ProjectApprovalPage() {
   };
 
   return (
-    <div className="space-y-4 max-w-4xl mx-auto">
-      <div className="flex items-center gap-2">
-        <CheckCircle className="h-6 w-6 text-primary" />
-        <h1 className="text-2xl font-bold text-foreground">{t('projectApproval')}</h1>
+    <div className="space-y-6 max-w-4xl mx-auto">
+      <div className="flex items-center gap-3">
+        <div className="h-10 w-10 rounded-xl bg-success/10 flex items-center justify-center">
+          <CheckCircle className="h-5 w-5 text-success" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">{t('projectApproval')}</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">প্রকল্প অনুমোদন কেন্দ্র</p>
+        </div>
+        {pendingProjects.length > 0 && (
+          <Badge variant="secondary" className="ml-auto">{pendingProjects.length} অপেক্ষমাণ</Badge>
+        )}
       </div>
 
       {error && <ErrorBanner message={error} onRetry={fetchProjects} />}
 
       {loading ? <LoadingSkeleton rows={4} /> : pendingProjects.length === 0 ? (
-        <p className="text-muted-foreground text-center py-12">{t('noData')}</p>
+        <div className="text-center py-16">
+          <div className="h-16 w-16 mx-auto rounded-2xl bg-success/10 flex items-center justify-center mb-4">
+            <CheckCircle className="h-8 w-8 text-success" />
+          </div>
+          <p className="text-muted-foreground font-medium">সব প্রকল্প অনুমোদন সম্পন্ন</p>
+        </div>
       ) : (
         <div className="space-y-3">
           {pendingProjects.map(p => (
-            <Card key={p.id}>
+            <Card key={p.id} className="border-border/60 hover:shadow-sm transition-all">
               <CardHeader className="pb-2">
-                <div className="flex items-start justify-between">
-                  <CardTitle className="text-sm">{p.title}</CardTitle>
-                  <Badge variant="secondary">{p.department}</Badge>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                      <Building2 className="h-4 w-4 text-primary" />
+                    </div>
+                    <CardTitle className="text-sm leading-snug">{p.title}</CardTitle>
+                  </div>
+                  <Badge variant="secondary" className="shrink-0 text-xs">{p.department}</Badge>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-2">
-                <p className="text-sm text-muted-foreground">{p.description}</p>
-                <div className="text-xs text-muted-foreground">বাজেট: ৳{p.budget.toLocaleString()} · জেলা: {p.district}</div>
-                <div className="flex gap-2">
-                  <Button size="sm" onClick={() => setAction({ id: p.id, approved: true })} className="gap-1">
+              <CardContent className="space-y-3">
+                <p className="text-sm text-muted-foreground leading-relaxed">{p.description}</p>
+                <div className="flex gap-3 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1"><Banknote className="h-3 w-3" />৳{p.budget.toLocaleString()}</span>
+                  <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{p.district}</span>
+                </div>
+                <div className="flex gap-2 pt-1">
+                  <Button size="sm" onClick={() => setAction({ id: p.id, approved: true })} className="gap-1.5 gradient-primary border-0">
                     <CheckCircle className="h-3.5 w-3.5" />{t('approve')}
                   </Button>
-                  <Button size="sm" variant="destructive" onClick={() => setAction({ id: p.id, approved: false })} className="gap-1">
+                  <Button size="sm" variant="destructive" onClick={() => setAction({ id: p.id, approved: false })} className="gap-1.5">
                     <X className="h-3.5 w-3.5" />{t('reject')}
                   </Button>
                 </div>

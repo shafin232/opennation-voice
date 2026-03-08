@@ -7,12 +7,15 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent,
-  SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
+  SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader,
+  useSidebar,
 } from '@/components/ui/sidebar';
 
 export function AdminSidebar() {
   const { t } = useLanguage();
   const { user } = useAuth();
+  const { state } = useSidebar();
+  const collapsed = state === 'collapsed';
   const isSuperadmin = user?.role === 'superadmin';
 
   const items = [
@@ -29,18 +32,45 @@ export function AdminSidebar() {
   ].filter(item => !item.superadminOnly || isSuperadmin);
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border">
+      <SidebarHeader className="p-4">
+        {!collapsed && (
+          <div className="flex items-center gap-2.5">
+            <div className="h-9 w-9 rounded-xl bg-destructive/10 flex items-center justify-center">
+              <Shield className="h-5 w-5 text-destructive" />
+            </div>
+            <div>
+              <p className="font-bold text-sm text-sidebar-foreground leading-none">{t('adminPanel')}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">প্রশাসন নিয়ন্ত্রণ</p>
+            </div>
+          </div>
+        )}
+        {collapsed && (
+          <div className="flex justify-center">
+            <div className="h-8 w-8 rounded-lg bg-destructive/10 flex items-center justify-center">
+              <Shield className="h-4 w-4 text-destructive" />
+            </div>
+          </div>
+        )}
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>{t('adminPanel')}</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-[10px] uppercase tracking-widest font-semibold text-muted-foreground px-3">
+            {!collapsed && 'প্রশাসন'}
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton asChild>
-                    <NavLink to={item.url} end={item.url === '/admin'} className="hover:bg-muted/50" activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium">
-                      <item.icon className="mr-2 h-4 w-4" />
-                      <span>{item.title}</span>
+                    <NavLink 
+                      to={item.url} 
+                      end={item.url === '/admin'} 
+                      className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all" 
+                      activeClassName="bg-primary/10 text-primary font-semibold shadow-sm"
+                    >
+                      <item.icon className="h-4 w-4 shrink-0" />
+                      {!collapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
