@@ -27,6 +27,8 @@ import CommunityRepairPage from "@/pages/citizen/CommunityRepairPage";
 import IntegrityPage from "@/pages/citizen/IntegrityPage";
 import NotificationsPage from "@/pages/citizen/NotificationsPage";
 import ProfilePage from "@/pages/citizen/ProfilePage";
+import ProfileEditPage from "@/pages/citizen/ProfileEditPage";
+import ReportDetailPage from "@/pages/citizen/ReportDetailPage";
 import SettingsPage from "@/pages/citizen/SettingsPage";
 
 // Admin Pages
