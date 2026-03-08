@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import {
-  Shield, ArrowRight, BarChart3, FileText, Users, Zap, Eye, Lock,
+  ArrowRight, BarChart3, FileText, Users, Zap, Eye, Lock,
   ChevronDown, CheckCircle2, MessageSquare, ChevronRight, Plus, Minus,
   Globe, Smartphone, Server, Award, TrendingUp, Heart
 } from 'lucide-react';
+import logoImg from '@/assets/logo.png';
 
 /* ═══════ DATA ═══════ */
 const features = [
@@ -99,10 +100,7 @@ const Index = () => {
       >
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-xl gradient-neon flex items-center justify-center glow-neon">
-              <Shield className="h-4 w-4 text-primary-foreground" />
-            </div>
-            <span className="font-bold tracking-tight text-sm">OpenNation</span>
+            <img src={logoImg} alt="OpenNation" className="h-8 object-contain" />
           </div>
           <div className="hidden md:flex items-center gap-8">
             {['Features', 'How it Works', 'FAQ'].map(item => (
@@ -445,11 +443,11 @@ const Index = () => {
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
             <div className="relative z-10">
               <motion.div
-                className="h-16 w-16 rounded-2xl gradient-neon flex items-center justify-center mx-auto mb-8 glow-neon"
+                className="mx-auto mb-8"
                 animate={{ rotate: [0, 5, -5, 0] }}
                 transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
               >
-                <Shield className="h-8 w-8 text-primary-foreground" />
+                <img src={logoImg} alt="OpenNation" className="h-16 object-contain mx-auto" />
               </motion.div>
               <h2 className="text-3xl md:text-5xl font-bold tracking-tighter mb-4">
                 Join the movement
@@ -477,10 +475,7 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-8 mb-12">
             <div className="md:col-span-2">
               <div className="flex items-center gap-2.5 mb-4">
-                <div className="h-9 w-9 rounded-xl gradient-neon flex items-center justify-center glow-neon">
-                  <Shield className="h-4.5 w-4.5 text-primary-foreground" />
-                </div>
-                <span className="font-bold tracking-tight">OpenNation</span>
+                <img src={logoImg} alt="OpenNation" className="h-9 object-contain" />
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
                 AI-powered civic intelligence platform ensuring national transparency and accountability for every citizen of Bangladesh.

@@ -2,6 +2,7 @@ import {
   Shield, AlertTriangle, TrendingUp, CheckCircle, FileSearch, Unlock,
   Activity, Archive, ScrollText, MapPin, UserCog, BarChart3, Hospital
 } from 'lucide-react';
+import logoImg from '@/assets/logo.png';
 import { NavLink } from '@/components/NavLink';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -64,9 +65,7 @@ export function AdminSidebar() {
       <SidebarHeader className="p-4 pb-3">
         {!collapsed ? (
           <div className="flex items-center gap-2.5">
-            <div className="h-9 w-9 rounded-xl bg-destructive/10 flex items-center justify-center">
-              <Shield className="h-5 w-5 text-destructive" />
-            </div>
+            <img src={logoImg} alt="OpenNation" className="h-9 object-contain" />
             <div>
               <p className="font-bengali font-bold text-sm text-sidebar-foreground leading-none">{t('adminPanel')}</p>
               <p className="text-[10px] text-muted-foreground mt-0.5 font-bengali">Control Center</p>
@@ -74,9 +73,7 @@ export function AdminSidebar() {
           </div>
         ) : (
           <div className="flex justify-center">
-            <div className="h-8 w-8 rounded-lg bg-destructive/10 flex items-center justify-center">
-              <Shield className="h-4 w-4 text-destructive" />
-            </div>
+            <img src={logoImg} alt="OpenNation" className="h-8 w-8 object-contain" />
           </div>
         )}
       </SidebarHeader>

@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Shield, LogIn, UserPlus, ArrowRight, Fingerprint, Eye, EyeOff } from 'lucide-react';
+import logoImg from '@/assets/logo.png';
 
 export default function LoginPage() {
   const { signIn, signUp } = useAuth();
@@ -63,15 +64,12 @@ export default function LoginPage() {
           className="relative z-10 max-w-md text-center"
         >
           <motion.div
-            className="h-20 w-20 rounded-3xl gradient-neon flex items-center justify-center mx-auto mb-8 glow-neon"
+            className="mx-auto mb-8"
             animate={{ rotate: [0, 5, -5, 0] }}
             transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
           >
-            <Shield className="h-10 w-10 text-primary-foreground" />
+            <img src={logoImg} alt="OpenNation" className="h-20 object-contain mx-auto" />
           </motion.div>
-          <h1 className="text-5xl font-bold tracking-tighter mb-4">
-            <span className="gradient-text-neon">Open</span>Nation
-          </h1>
           <p className="text-lg text-muted-foreground leading-relaxed">
             AI-powered civic intelligence platform for national transparency & accountability
           </p>
@@ -102,12 +100,7 @@ export default function LoginPage() {
         >
           {/* Mobile logo */}
           <div className="lg:hidden text-center mb-10">
-            <div className="h-14 w-14 rounded-2xl gradient-neon flex items-center justify-center mx-auto mb-4 glow-neon">
-              <Shield className="h-7 w-7 text-primary-foreground" />
-            </div>
-            <h1 className="text-2xl font-bold tracking-tight">
-              <span className="gradient-text-neon">Open</span>Nation
-            </h1>
+            <img src={logoImg} alt="OpenNation" className="h-14 object-contain mx-auto mb-4" />
           </div>
 
           <div className="mb-8">
