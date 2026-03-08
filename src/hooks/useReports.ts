@@ -143,7 +143,8 @@ export function useReports() {
           lat: submission.location.lat,
           lng: submission.location.lng,
           author_id: user.id,
-        })
+          is_anonymous: submission.isAnonymous ?? false,
+        } as any)
         .select()
         .single();
 
