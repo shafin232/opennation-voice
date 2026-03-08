@@ -92,9 +92,9 @@ function CommentSection({ reportId, commentCount }: { reportId: string; commentC
       const userIds = [...new Set(data.map((c: any) => c.user_id))];
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('user_id, name')
+        .select('user_id, name, citizen_alias')
         .in('user_id', userIds);
-      const profileMap = new Map((profiles ?? []).map((p: any) => [p.user_id, p.name]));
+      const profileMap = new Map((profiles ?? []).map((p: any) => [p.user_id, p]));
 
       setComments(data.map((c: any) => ({
         id: c.id,
