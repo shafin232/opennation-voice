@@ -38,7 +38,7 @@ export function AdminSidebar() {
     {
       label: 'অনুমোদন ও প্রতিক্রিয়া',
       items: [
-        { title: t('projectApproval'), url: '/admin/project-approval', icon: CheckCircle },
+        { title: 'প্রকল্প ম্যানেজমেন্ট', url: '/admin/project-approval', icon: CheckCircle },
         { title: t('rtiResponse'), url: '/admin/rti-response', icon: FileSearch },
         ...(isSuperadmin ? [{ title: t('identityUnlock'), url: '/admin/identity-unlock', icon: Unlock }] : []),
       ],
