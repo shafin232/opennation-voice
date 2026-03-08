@@ -13,7 +13,7 @@ export function useProjects() {
     setError(null);
     try {
       const { data } = await apiClient.get<PaginatedResponse<GovernmentProject>>('/projects');
-      setProjects(data.data);
+      setProjects(data.data ?? []);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to fetch projects');
     } finally {
