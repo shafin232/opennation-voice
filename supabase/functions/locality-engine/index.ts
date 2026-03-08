@@ -3,16 +3,10 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// Haversine distance in km
-function haversineKm(
-  lat1: number,
-  lng1: number,
-  lat2: number,
-  lng2: number
-): number {
+function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLng = ((lng2 - lng1) * Math.PI) / 180;
@@ -24,7 +18,6 @@ function haversineKm(
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-// Geographic Vote Weight
 function geoWeight(distanceKm: number, sameDistrict: boolean): number {
   if (distanceKm < 0.5) return 1.0;
   if (distanceKm < 2) return 0.8;
@@ -39,40 +32,35 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
+    const authHeader = req.headers.get("authorization") ?? req.headers.get("Authorization") ?? "";
+    if (!authHeader.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 
-    const anonClient = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_PUBLISHABLE_KEY")!,
-      { global: { headers: { Authorization: authHeader } } }
-    );
+    const supabase = createClient(supabaseUrl, serviceKey);
 
-    const { data: claimsData, error: claimsErr } = await anonClient.auth.getClaims(
-      authHeader.replace("Bearer ", "")
-    );
-    if (claimsErr || !claimsData?.claims) {
+    // Verify caller
+    const callerClient = createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: { user: caller }, error: authErr } = await callerClient.auth.getUser();
+    if (authErr || !caller) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const { action, report_id, voter_lat, voter_lng, voter_district } =
-      await req.json();
+    const { action, report_id, voter_lat, voter_lng, voter_district } = await req.json();
 
     if (action === "weight_vote") {
-      // ---------- Geographic Vote Weighting ----------
       const { data: report } = await supabase
         .from("reports")
         .select("lat, lng, district")
@@ -81,15 +69,11 @@ Deno.serve(async (req) => {
 
       if (!report || !report.lat || !report.lng) {
         return new Response(
-          JSON.stringify({
-            weight: 0.3,
-            reason: "Report has no GPS, using district match",
-          }),
+          JSON.stringify({ weight: 0.3, reason: "Report has no GPS, using district match" }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
-      // Locality Safeguard: Check if local witnesses exist
       const { data: localActions } = await supabase
         .from("user_actions")
         .select("lat, lng")
@@ -106,15 +90,13 @@ Deno.serve(async (req) => {
         distance = haversineKm(report.lat, report.lng, voter_lat, voter_lng);
       }
 
-      const sameDistrict =
-        voter_district?.toLowerCase() === report.district?.toLowerCase();
+      const sameDistrict = voter_district?.toLowerCase() === report.district?.toLowerCase();
 
-      // If local witnesses exist and voter is outside district, apply carpetbagging protection
       if (hasLocalWitnesses && !sameDistrict && distance > 10) {
         return new Response(
           JSON.stringify({
             weight: 0.05,
-            reason: "Digital carpetbagging protection: local witnesses present, outside district vote suppressed",
+            reason: "Digital carpetbagging protection",
             distance_km: Math.round(distance * 10) / 10,
           }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -126,8 +108,7 @@ Deno.serve(async (req) => {
       return new Response(
         JSON.stringify({
           weight,
-          distance_km:
-            distance === Infinity ? null : Math.round(distance * 10) / 10,
+          distance_km: distance === Infinity ? null : Math.round(distance * 10) / 10,
           same_district: sameDistrict,
           has_local_witnesses: hasLocalWitnesses,
         }),
@@ -136,7 +117,6 @@ Deno.serve(async (req) => {
     }
 
     if (action === "location_integrity") {
-      // ---------- Location Integrity Score ----------
       const { data: report } = await supabase
         .from("reports")
         .select("lat, lng")
@@ -148,12 +128,8 @@ Deno.serve(async (req) => {
         .select("*")
         .eq("report_id", report_id);
 
-      let locationIntegrity = 0.5; // default neutral
-      if (report?.lat && report?.lng) {
-        locationIntegrity = 0.8; // Has claimed GPS
-        // In real implementation, compare with EXIF metadata
-        // If mismatch > 5km → 0.1 (Suspicious)
-      }
+      let locationIntegrity = 0.5;
+      if (report?.lat && report?.lng) locationIntegrity = 0.8;
 
       return new Response(
         JSON.stringify({
@@ -168,13 +144,10 @@ Deno.serve(async (req) => {
 
     return new Response(
       JSON.stringify({ error: "Unknown action. Use: weight_vote, location_integrity" }),
-      {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
+    return new Response(JSON.stringify({ error: (err as Error).message }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

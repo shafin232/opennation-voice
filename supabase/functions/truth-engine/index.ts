@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 Deno.serve(async (req) => {
@@ -12,29 +12,26 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
+    const authHeader = req.headers.get("authorization") ?? req.headers.get("Authorization") ?? "";
+    if (!authHeader.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 
-    const anonClient = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_PUBLISHABLE_KEY")!,
-      { global: { headers: { Authorization: authHeader } } }
-    );
+    const supabase = createClient(supabaseUrl, serviceKey);
 
-    const { data: claimsData, error: claimsErr } = await anonClient.auth.getClaims(
-      authHeader.replace("Bearer ", "")
-    );
-    if (claimsErr || !claimsData?.claims) {
+    // Verify caller
+    const callerClient = createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: { user: caller }, error: authErr } = await callerClient.auth.getUser();
+    if (authErr || !caller) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -43,7 +40,7 @@ Deno.serve(async (req) => {
 
     const { report_id } = await req.json();
 
-    // ---------- Fetch report data ----------
+    // Fetch report
     const { data: report } = await supabase
       .from("reports")
       .select("*")
@@ -57,7 +54,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    // ---------- Get author's effective trust ----------
+    // Author's effective trust
     const { data: authorProfile } = await supabase
       .from("profiles")
       .select("effective_trust")
@@ -66,8 +63,7 @@ Deno.serve(async (req) => {
 
     const effectiveTrust = (authorProfile?.effective_trust ?? 50) / 100;
 
-    // ---------- Authenticity Score (simplified without actual media forensics) ----------
-    // Weights: Duplicate(25%), ImageReuse(20%), Tampering(25%), AI-Gen(20%), LocationMeta(10%)
+    // Authenticity Score
     const { data: evidence } = await supabase
       .from("evidence")
       .select("*")
@@ -76,33 +72,22 @@ Deno.serve(async (req) => {
     const hasEvidence = (evidence?.length ?? 0) > 0;
     const evidenceStrength = hasEvidence ? 0.7 : 0.2;
 
-    // Location metadata bonus
     const hasLocation = report.lat !== null && report.lng !== null;
     const locationMetaBonus = hasLocation ? 1.0 : 0.0;
 
-    // Simplified authenticity (no actual forensics available)
     const authenticityScore =
-      0.25 * 0.9 + // Assume no duplicate (0.9)
-      0.2 * 0.9 + // Assume no image reuse
-      0.25 * 0.85 + // Assume no tampering
-      0.2 * 0.85 + // Assume not AI-generated
-      0.1 * locationMetaBonus;
+      0.25 * 0.9 + 0.2 * 0.9 + 0.25 * 0.85 + 0.2 * 0.85 + 0.1 * locationMetaBonus;
 
-    // ---------- Location Integrity Score ----------
-    // Compare report GPS with evidence EXIF (simplified)
+    // Location Integrity
     let locationScore = 0.5;
-    if (hasLocation) {
-      locationScore = 0.8; // Has GPS data
-    }
+    if (hasLocation) locationScore = 0.8;
 
-    // ---------- Community Consensus ----------
+    // Community Consensus
     const totalVotes = report.support_count + report.doubt_count;
     let communityConsensus = 0.5;
-    if (totalVotes > 0) {
-      communityConsensus = report.support_count / totalVotes;
-    }
+    if (totalVotes > 0) communityConsensus = report.support_count / totalVotes;
 
-    // ---------- Anti-Farming: Burst Activity Check ----------
+    // Anti-Farming: Burst Check
     const { data: recentActions } = await supabase
       .from("user_actions")
       .select("created_at")
@@ -116,27 +101,23 @@ Deno.serve(async (req) => {
       for (let i = 1; i < recentActions.length; i++) {
         const gap =
           (new Date(recentActions[i - 1].created_at).getTime() -
-            new Date(recentActions[i].created_at).getTime()) /
-          1000;
-        if (gap < 30) burstCount++; // <30s = burst
+            new Date(recentActions[i].created_at).getTime()) / 1000;
+        if (gap < 30) burstCount++;
       }
       botPenalty = (burstCount / recentActions.length) * 0.3;
     }
 
-    // ---------- Target Satiation Check ----------
-    // If user repeatedly acts on same report, diminish weight
+    // Target Satiation
     const { data: userActionsOnTarget } = await supabase
       .from("user_actions")
       .select("id")
-      .eq("user_id", claimsData.claims.sub)
+      .eq("user_id", caller.id)
       .eq("target_id", report_id);
 
     const repeatCount = userActionsOnTarget?.length ?? 0;
-    const satiationPenalty =
-      repeatCount > 1 ? 1 / Math.log(repeatCount + 1) : 0;
+    const satiationPenalty = repeatCount > 1 ? 1 / Math.log(repeatCount + 1) : 0;
 
-    // ---------- Truth Probability ----------
-    // P(truth) = Evidence(40%) + Trust(25%) + Location(15%) + Consensus(20%) - BotPenalty
+    // Truth Probability
     const truthProbability = Math.max(
       0,
       Math.min(
@@ -150,24 +131,21 @@ Deno.serve(async (req) => {
       )
     );
 
-    // ---------- Classification ----------
+    // Classification
     let classification = "uncertain";
     if (truthProbability > 0.9) classification = "highly_true";
     else if (truthProbability > 0.7) classification = "likely_true";
     else if (truthProbability < 0.4) classification = "false";
 
-    // ---------- Approval Protocol ----------
-    // Final = Truth(45%) + Authenticity(35%) + Trust(20%)
+    // Approval Protocol
     const approvalScore =
-      0.45 * truthProbability +
-      0.35 * authenticityScore +
-      0.2 * effectiveTrust;
+      0.45 * truthProbability + 0.35 * authenticityScore + 0.2 * effectiveTrust;
 
     let approvalDecision = "human_review";
     if (approvalScore > 0.75) approvalDecision = "auto_approved";
     else if (approvalScore < 0.4) approvalDecision = "auto_rejected";
 
-    // ---------- Update report ----------
+    // Update report
     await supabase
       .from("reports")
       .update({
@@ -197,7 +175,7 @@ Deno.serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
+    return new Response(JSON.stringify({ error: (err as Error).message }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
