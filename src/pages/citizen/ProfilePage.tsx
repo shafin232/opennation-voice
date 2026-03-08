@@ -90,9 +90,9 @@ export default function ProfilePage() {
 
             {/* Score rings */}
             <div className="flex items-center justify-center gap-12 mt-8">
-              <CircularProgress value={user.trustScore} size={100} strokeWidth={7} label={t('trustScore')} />
+              <CircularProgress value={trustVal} size={100} strokeWidth={7} label={t('trustScore')} />
               <div className="h-14 w-px bg-border/20" />
-              <CircularProgress value={user.truthScore} size={100} strokeWidth={7} label={t('truthScore')} />
+              <CircularProgress value={truthVal} size={100} strokeWidth={7} label={t('truthScore')} />
             </div>
           </div>
         </div>
