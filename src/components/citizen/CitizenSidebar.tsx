@@ -29,7 +29,7 @@ export function CitizenSidebar() {
   ];
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-sidebar-border">
+    <Sidebar collapsible="icon" className="border-r border-[hsl(var(--border-subtle))] glass-nav">
       <SidebarHeader className="p-4">
         {!collapsed && (
           <div className="flex items-center gap-2.5">
@@ -37,8 +37,8 @@ export function CitizenSidebar() {
               <Shield className="h-5 w-5 text-white" />
             </div>
             <div>
-              <p className="font-bold text-sm text-sidebar-foreground leading-none">{t('appName')}</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">নাগরিক পোর্টাল</p>
+              <p className="font-bengali font-bold text-sm text-sidebar-foreground leading-none">{t('appName')}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5 font-bengali">নাগরিক পোর্টাল</p>
             </div>
           </div>
         )}
@@ -60,11 +60,11 @@ export function CitizenSidebar() {
               {items.map((item) => (
                 <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton asChild>
-                    <NavLink 
-                      to={item.url} 
-                      end={item.url === '/app'} 
-                      className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all" 
-                      activeClassName="bg-primary/10 text-primary font-semibold shadow-sm"
+                    <NavLink
+                      to={item.url}
+                      end={item.url === '/app'}
+                      className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground transition-all font-bengali"
+                      activeClassName="bg-primary/10 text-primary font-semibold"
                     >
                       <item.icon className="h-4 w-4 shrink-0" />
                       {!collapsed && <span>{item.title}</span>}

@@ -4,6 +4,7 @@ import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { CrisisBanner } from '@/components/shared/CrisisBanner';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { LanguageToggle } from '@/components/shared/LanguageToggle';
+import { BottomNav } from '@/components/shared/BottomNav';
 import { LogOut, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,20 +17,22 @@ export default function AdminLayout() {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
-        <AdminSidebar />
+      <div className="min-h-screen flex w-full mesh-gradient-subtle">
+        <div className="hidden md:block">
+          <AdminSidebar />
+        </div>
         <div className="flex-1 flex flex-col min-w-0">
           <CrisisBanner />
-          <header className="h-16 border-b border-border/60 flex items-center justify-between px-4 md:px-6 bg-card/80 backdrop-blur-xl sticky top-0 z-30">
+          <header className="h-14 border-b border-[hsl(var(--border-subtle))] flex items-center justify-between px-4 md:px-6 glass-nav sticky top-0 z-30">
             <div className="flex items-center gap-3">
-              <SidebarTrigger className="hover:bg-muted" />
-              <div className="hidden sm:flex items-center gap-2.5">
-                <div className="h-8 w-8 rounded-lg bg-destructive/10 flex items-center justify-center">
+              <SidebarTrigger className="hidden md:flex hover:bg-muted/50" />
+              <div className="flex items-center gap-2.5">
+                <div className="h-8 w-8 rounded-lg bg-destructive/15 flex items-center justify-center">
                   <Shield className="h-4 w-4 text-destructive" />
                 </div>
-                <div className="flex flex-col">
-                  <span className="font-bold text-sm leading-none">{t('adminPanel')}</span>
-                  <span className="text-[10px] text-muted-foreground leading-tight mt-0.5">প্রশাসন নিয়ন্ত্রণ</span>
+                <div className="hidden sm:flex flex-col">
+                  <span className="font-bengali font-bold text-sm leading-none">{t('adminPanel')}</span>
+                  <span className="text-[10px] text-muted-foreground leading-tight mt-0.5 font-bengali">প্রশাসন নিয়ন্ত্রণ</span>
                 </div>
               </div>
             </div>
@@ -42,16 +45,17 @@ export default function AdminLayout() {
               )}
               <LanguageToggle />
               <ThemeToggle />
-              <div className="w-px h-6 bg-border mx-1 hidden sm:block" />
-              <Button variant="ghost" size="icon" onClick={logout} className="text-muted-foreground hover:text-destructive">
+              <div className="w-px h-5 bg-border/50 mx-1 hidden sm:block" />
+              <Button variant="ghost" size="icon" onClick={logout} className="text-muted-foreground hover:text-destructive h-8 w-8">
                 <LogOut className="h-4 w-4" />
               </Button>
             </div>
           </header>
-          <main className="flex-1 p-4 md:p-8 overflow-auto animate-fade-in">
+          <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto pb-20 md:pb-8">
             <Outlet />
           </main>
         </div>
+        <BottomNav variant="admin" />
       </div>
     </SidebarProvider>
   );
