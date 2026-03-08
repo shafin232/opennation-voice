@@ -34,13 +34,19 @@ export function BottomNav({ variant = 'citizen' }: BottomNavProps) {
             to={item.to}
             end={item.to === '/app' || item.to === '/admin'}
             className={({ isActive }) =>
-              `flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors ${
-                isActive ? 'text-primary' : 'text-muted-foreground'
+              `flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all duration-200 ${
+                isActive ? 'text-primary' : 'text-muted-foreground/60'
               }`
             }
           >
-            <item.icon className="h-5 w-5" />
-            <span className="text-[10px] font-medium font-bengali">{item.label}</span>
+            {({ isActive }) => (
+              <>
+                <div className={`h-8 w-8 rounded-xl flex items-center justify-center transition-all ${isActive ? 'bg-primary/10 shadow-glow-teal' : ''}`}>
+                  <item.icon className="h-4 w-4" />
+                </div>
+                <span className="text-[9px] font-medium font-bengali">{item.label}</span>
+              </>
+            )}
           </NavLink>
         ))}
       </div>
