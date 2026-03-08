@@ -46,17 +46,23 @@ export function useProjects() {
     try {
       const { data, error: err } = await supabase
         .from('project_opinions')
-        .select('*, profiles!project_opinions_user_id_fkey(name)')
+        .select('*')
         .eq('project_id', projectId)
         .order('created_at', { ascending: false });
 
       if (err) throw err;
 
+      const userIds = [...new Set((data ?? []).map((o: any) => o.user_id))];
+      const { data: profilesData } = userIds.length > 0
+        ? await supabase.from('profiles').select('user_id, name').in('user_id', userIds)
+        : { data: [] };
+      const nameMap = new Map((profilesData ?? []).map((p: any) => [p.user_id, p.name]));
+
       setOpinions((data ?? []).map((o: any) => ({
         id: o.id,
         projectId: o.project_id,
         userId: o.user_id,
-        userName: o.profiles?.name || 'Anonymous',
+        userName: nameMap.get(o.user_id) || 'Anonymous',
         opinion: o.opinion,
         createdAt: o.created_at,
       })));
