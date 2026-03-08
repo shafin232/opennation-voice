@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
-import apiClient from '@/lib/apiClient';
-import type { IntegrityMetrics, ApiResponse } from '@/types';
+import { supabase } from '@/integrations/supabase/client';
+import type { IntegrityMetrics } from '@/types';
 
 export function useIntegrity() {
   const [metrics, setMetrics] = useState<IntegrityMetrics[]>([]);
@@ -11,12 +11,24 @@ export function useIntegrity() {
     setLoading(true);
     setError(null);
     try {
-      const { data } = await apiClient.get<ApiResponse<IntegrityMetrics[]>>('/integrity', {
-        params: district ? { district } : undefined,
-      });
-      setMetrics(data.data ?? []);
+      let query = supabase.from('integrity_metrics').select('*');
+      if (district) query = query.eq('district', district);
+
+      const { data, error: err } = await query;
+      if (err) throw err;
+
+      setMetrics((data ?? []).map(m => ({
+        district: m.district,
+        trustScore: m.trust_score,
+        truthScore: m.truth_score,
+        totalReports: m.total_reports,
+        verifiedReports: m.verified_reports,
+        resolvedReports: m.resolved_reports,
+        activeProjects: m.active_projects,
+        rtiResponseRate: Number(m.rti_response_rate),
+      })));
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to fetch integrity metrics');
+      setError(err.message || 'Failed to fetch integrity metrics');
     } finally {
       setLoading(false);
     }

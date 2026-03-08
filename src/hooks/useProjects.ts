@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
-import apiClient from '@/lib/apiClient';
-import type { GovernmentProject, ProjectOpinion, OpinionSubmission, PaginatedResponse, ApiResponse } from '@/types';
+import { supabase } from '@/integrations/supabase/client';
+import type { GovernmentProject, ProjectOpinion, OpinionSubmission } from '@/types';
 
 export function useProjects() {
   const [projects, setProjects] = useState<GovernmentProject[]>([]);
@@ -12,10 +12,30 @@ export function useProjects() {
     setLoading(true);
     setError(null);
     try {
-      const { data } = await apiClient.get<PaginatedResponse<GovernmentProject>>('/projects');
-      setProjects(data.data ?? []);
+      const { data, error: err } = await supabase
+        .from('projects')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (err) throw err;
+
+      setProjects((data ?? []).map(p => ({
+        id: p.id,
+        title: p.title,
+        description: p.description,
+        department: p.department,
+        budget: p.budget,
+        district: p.district,
+        status: p.status as any,
+        startDate: p.start_date ?? undefined,
+        endDate: p.end_date ?? undefined,
+        opinionCount: p.opinion_count,
+        approvalStatus: p.approval_status as any,
+        isFrozen: p.is_frozen,
+        createdAt: p.created_at,
+      })));
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to fetch projects');
+      setError(err.message || 'Failed to fetch projects');
     } finally {
       setLoading(false);
     }
@@ -24,10 +44,24 @@ export function useProjects() {
   const fetchProjectOpinions = useCallback(async (projectId: string) => {
     setLoading(true);
     try {
-      const { data } = await apiClient.get<PaginatedResponse<ProjectOpinion>>(`/projects/${projectId}/opinions`);
-      setOpinions(data.data ?? []);
+      const { data, error: err } = await supabase
+        .from('project_opinions')
+        .select('*, profiles!project_opinions_user_id_fkey(name)')
+        .eq('project_id', projectId)
+        .order('created_at', { ascending: false });
+
+      if (err) throw err;
+
+      setOpinions((data ?? []).map((o: any) => ({
+        id: o.id,
+        projectId: o.project_id,
+        userId: o.user_id,
+        userName: o.profiles?.name || 'Anonymous',
+        opinion: o.opinion,
+        createdAt: o.created_at,
+      })));
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to fetch opinions');
+      setError(err.message || 'Failed to fetch opinions');
     } finally {
       setLoading(false);
     }
@@ -37,12 +71,23 @@ export function useProjects() {
     setLoading(true);
     setError(null);
     try {
-      const { data } = await apiClient.post<ApiResponse<ProjectOpinion>>(`/projects/${submission.projectId}/opinions`, {
-        opinion: submission.opinion,
-      });
-      return data.data;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { data, error: err } = await supabase
+        .from('project_opinions')
+        .insert({
+          project_id: submission.projectId,
+          user_id: user.id,
+          opinion: submission.opinion,
+        })
+        .select()
+        .single();
+
+      if (err) throw err;
+      return data;
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to submit opinion');
+      setError(err.message || 'Failed to submit opinion');
       throw err;
     } finally {
       setLoading(false);

@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
-import apiClient from '@/lib/apiClient';
-import type { RTIRequest, RTISubmission, PaginatedResponse, ApiResponse } from '@/types';
+import { supabase } from '@/integrations/supabase/client';
+import type { RTIRequest, RTISubmission } from '@/types';
 
 export function useRTI() {
   const [requests, setRequests] = useState<RTIRequest[]>([]);
@@ -11,10 +11,26 @@ export function useRTI() {
     setLoading(true);
     setError(null);
     try {
-      const { data } = await apiClient.get<PaginatedResponse<RTIRequest>>('/rti');
-      setRequests(data.data ?? []);
+      const { data, error: err } = await supabase
+        .from('rti_requests')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (err) throw err;
+
+      setRequests((data ?? []).map(r => ({
+        id: r.id,
+        subject: r.subject,
+        body: r.body,
+        department: r.department,
+        status: r.status as any,
+        response: r.response ?? undefined,
+        submittedBy: r.submitted_by,
+        createdAt: r.created_at,
+        updatedAt: r.updated_at,
+      })));
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to fetch RTI requests');
+      setError(err.message || 'Failed to fetch RTI requests');
     } finally {
       setLoading(false);
     }
@@ -24,10 +40,24 @@ export function useRTI() {
     setLoading(true);
     setError(null);
     try {
-      const { data } = await apiClient.post<ApiResponse<RTIRequest>>('/rti', submission);
-      return data.data;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { data, error: err } = await supabase
+        .from('rti_requests')
+        .insert({
+          subject: submission.subject,
+          body: submission.body,
+          department: submission.department,
+          submitted_by: user.id,
+        })
+        .select()
+        .single();
+
+      if (err) throw err;
+      return data;
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to submit RTI');
+      setError(err.message || 'Failed to submit RTI');
       throw err;
     } finally {
       setLoading(false);

@@ -6,8 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Archive, Eye, EyeOff, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import apiClient from '@/lib/apiClient';
-import type { Evidence, PaginatedResponse } from '@/types';
+import { supabase } from '@/integrations/supabase/client';
+import type { Evidence } from '@/types';
 
 export default function EvidenceVaultPage() {
   const { t } = useLanguage();
@@ -19,22 +19,31 @@ export default function EvidenceVaultPage() {
   const fetchEvidence = async () => {
     setLoading(true); setError(null);
     try {
-      const { data } = await apiClient.get<PaginatedResponse<Evidence & { reportTitle: string }>>('/admin/evidence');
-      setEvidence(data.data);
-    } catch (err: any) { setError(err.response?.data?.message || 'Failed'); }
+      const { data, error: err } = await supabase
+        .from('evidence')
+        .select('*, reports(title)')
+        .order('created_at', { ascending: false });
+
+      if (err) throw err;
+
+      setEvidence((data ?? []).map((e: any) => ({
+        id: e.id,
+        type: e.type,
+        url: e.url,
+        blurred: e.blurred,
+        reportTitle: e.reports?.title || 'Unknown',
+      })));
+    } catch (err: any) { setError(err.message || 'Failed'); }
     finally { setLoading(false); }
   };
 
   useEffect(() => { fetchEvidence(); }, []);
 
-  const toggleReveal = async (id: string) => {
+  const toggleReveal = (id: string) => {
     if (revealed.has(id)) {
       setRevealed(prev => { const n = new Set(prev); n.delete(id); return n; });
     } else {
-      try {
-        await apiClient.post(`/admin/evidence/${id}/reveal`);
-        setRevealed(prev => new Set(prev).add(id));
-      } catch { /* handled */ }
+      setRevealed(prev => new Set(prev).add(id));
     }
   };
 

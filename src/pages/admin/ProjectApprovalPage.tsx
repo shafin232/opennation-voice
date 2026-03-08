@@ -25,7 +25,7 @@ export default function ProjectApprovalPage() {
   const handleAction = async () => {
     if (!action) return;
     try {
-      await approveProject(action.id, action.approved, notes);
+      await approveProject(action.id, action.approved);
       toast.success(t('success'));
       setAction(null); setNotes('');
       fetchProjects();

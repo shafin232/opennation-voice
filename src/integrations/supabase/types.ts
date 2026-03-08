@@ -14,16 +14,679 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          details: string
+          id: string
+          performed_by: string | null
+          performed_by_role: string
+          target_id: string
+          target_type: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: string
+          id?: string
+          performed_by?: string | null
+          performed_by_role?: string
+          target_id?: string
+          target_type?: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: string
+          id?: string
+          performed_by?: string | null
+          performed_by_role?: string
+          target_id?: string
+          target_type?: string
+        }
+        Relationships: []
+      }
+      community_repairs: {
+        Row: {
+          address: string | null
+          author_id: string
+          category: string
+          created_at: string
+          description: string
+          district: string
+          id: string
+          lat: number | null
+          lng: number | null
+          status: string
+          support_count: number
+          title: string
+          upazila: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          author_id: string
+          category?: string
+          created_at?: string
+          description: string
+          district?: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          status?: string
+          support_count?: number
+          title: string
+          upazila?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          author_id?: string
+          category?: string
+          created_at?: string
+          description?: string
+          district?: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          status?: string
+          support_count?: number
+          title?: string
+          upazila?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      crisis_mode: {
+        Row: {
+          activated_at: string | null
+          activated_by: string | null
+          active: boolean
+          id: string
+          reason: string | null
+        }
+        Insert: {
+          activated_at?: string | null
+          activated_by?: string | null
+          active?: boolean
+          id?: string
+          reason?: string | null
+        }
+        Update: {
+          activated_at?: string | null
+          activated_by?: string | null
+          active?: boolean
+          id?: string
+          reason?: string | null
+        }
+        Relationships: []
+      }
+      evidence: {
+        Row: {
+          blurred: boolean
+          created_at: string
+          id: string
+          report_id: string
+          type: string
+          url: string
+        }
+        Insert: {
+          blurred?: boolean
+          created_at?: string
+          id?: string
+          report_id: string
+          type?: string
+          url: string
+        }
+        Update: {
+          blurred?: boolean
+          created_at?: string
+          id?: string
+          report_id?: string
+          type?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evidence_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hospitals: {
+        Row: {
+          available_beds: number
+          district: string
+          id: string
+          last_updated: string
+          name: string
+          rating: number
+          services: string[]
+          total_beds: number
+          type: string
+        }
+        Insert: {
+          available_beds?: number
+          district?: string
+          id?: string
+          last_updated?: string
+          name: string
+          rating?: number
+          services?: string[]
+          total_beds?: number
+          type?: string
+        }
+        Update: {
+          available_beds?: number
+          district?: string
+          id?: string
+          last_updated?: string
+          name?: string
+          rating?: number
+          services?: string[]
+          total_beds?: number
+          type?: string
+        }
+        Relationships: []
+      }
+      identity_unlock_requests: {
+        Row: {
+          approved_by: string | null
+          created_at: string
+          id: string
+          reason: string
+          requested_by: string
+          status: string
+          target_user_id: string
+        }
+        Insert: {
+          approved_by?: string | null
+          created_at?: string
+          id?: string
+          reason: string
+          requested_by: string
+          status?: string
+          target_user_id: string
+        }
+        Update: {
+          approved_by?: string | null
+          created_at?: string
+          id?: string
+          reason?: string
+          requested_by?: string
+          status?: string
+          target_user_id?: string
+        }
+        Relationships: []
+      }
+      integrity_metrics: {
+        Row: {
+          active_projects: number
+          district: string
+          id: string
+          resolved_reports: number
+          rti_response_rate: number
+          total_reports: number
+          trust_score: number
+          truth_score: number
+          updated_at: string
+          verified_reports: number
+        }
+        Insert: {
+          active_projects?: number
+          district: string
+          id?: string
+          resolved_reports?: number
+          rti_response_rate?: number
+          total_reports?: number
+          trust_score?: number
+          truth_score?: number
+          updated_at?: string
+          verified_reports?: number
+        }
+        Update: {
+          active_projects?: number
+          district?: string
+          id?: string
+          resolved_reports?: number
+          rti_response_rate?: number
+          total_reports?: number
+          trust_score?: number
+          truth_score?: number
+          updated_at?: string
+          verified_reports?: number
+        }
+        Relationships: []
+      }
+      moderation_queue: {
+        Row: {
+          flag_reason: string
+          flagged_at: string
+          flagged_by: string
+          id: string
+          report_id: string
+          status: string
+        }
+        Insert: {
+          flag_reason: string
+          flagged_at?: string
+          flagged_by: string
+          id?: string
+          report_id: string
+          status?: string
+        }
+        Update: {
+          flag_reason?: string
+          flagged_at?: string
+          flagged_by?: string
+          id?: string
+          report_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moderation_queue_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          read: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          title: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          district: string
+          email: string | null
+          id: string
+          language: string
+          name: string
+          phone: string | null
+          trust_score: number
+          truth_score: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          district?: string
+          email?: string | null
+          id?: string
+          language?: string
+          name?: string
+          phone?: string | null
+          trust_score?: number
+          truth_score?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          district?: string
+          email?: string | null
+          id?: string
+          language?: string
+          name?: string
+          phone?: string | null
+          trust_score?: number
+          truth_score?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      project_opinions: {
+        Row: {
+          created_at: string
+          id: string
+          opinion: string
+          project_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          opinion: string
+          project_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          opinion?: string
+          project_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_opinions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          approval_status: string
+          budget: number
+          created_at: string
+          department: string
+          description: string
+          district: string
+          end_date: string | null
+          id: string
+          is_frozen: boolean
+          opinion_count: number
+          start_date: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          approval_status?: string
+          budget?: number
+          created_at?: string
+          department?: string
+          description: string
+          district?: string
+          end_date?: string | null
+          id?: string
+          is_frozen?: boolean
+          opinion_count?: number
+          start_date?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          approval_status?: string
+          budget?: number
+          created_at?: string
+          department?: string
+          description?: string
+          district?: string
+          end_date?: string | null
+          id?: string
+          is_frozen?: boolean
+          opinion_count?: number
+          start_date?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      reports: {
+        Row: {
+          address: string | null
+          author_id: string
+          category: string
+          created_at: string
+          description: string
+          district: string
+          doubt_count: number
+          id: string
+          lat: number | null
+          lng: number | null
+          status: string
+          support_count: number
+          title: string
+          upazila: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          author_id: string
+          category?: string
+          created_at?: string
+          description: string
+          district?: string
+          doubt_count?: number
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          status?: string
+          support_count?: number
+          title: string
+          upazila?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          author_id?: string
+          category?: string
+          created_at?: string
+          description?: string
+          district?: string
+          doubt_count?: number
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          status?: string
+          support_count?: number
+          title?: string
+          upazila?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      rti_requests: {
+        Row: {
+          body: string
+          created_at: string
+          department: string
+          id: string
+          response: string | null
+          status: string
+          subject: string
+          submitted_by: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          department?: string
+          id?: string
+          response?: string | null
+          status?: string
+          subject: string
+          submitted_by: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          department?: string
+          id?: string
+          response?: string | null
+          status?: string
+          subject?: string
+          submitted_by?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tenders: {
+        Row: {
+          actual_cost: number
+          awarded_to: string
+          created_at: string
+          department: string
+          estimated_cost: number
+          id: string
+          risk_factors: string[]
+          risk_score: number
+          status: string
+          tender_title: string
+        }
+        Insert: {
+          actual_cost?: number
+          awarded_to?: string
+          created_at?: string
+          department?: string
+          estimated_cost?: number
+          id?: string
+          risk_factors?: string[]
+          risk_score?: number
+          status?: string
+          tender_title: string
+        }
+        Update: {
+          actual_cost?: number
+          awarded_to?: string
+          created_at?: string
+          department?: string
+          estimated_cost?: number
+          id?: string
+          risk_factors?: string[]
+          risk_score?: number
+          status?: string
+          tender_title?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      vote_anomalies: {
+        Row: {
+          anomaly_type: string
+          details: string
+          detected_at: string
+          id: string
+          report_id: string
+          report_title: string
+          severity: string
+        }
+        Insert: {
+          anomaly_type: string
+          details?: string
+          detected_at?: string
+          id?: string
+          report_id: string
+          report_title?: string
+          severity?: string
+        }
+        Update: {
+          anomaly_type?: string
+          details?: string
+          detected_at?: string
+          id?: string
+          report_id?: string
+          report_title?: string
+          severity?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vote_anomalies_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      votes: {
+        Row: {
+          created_at: string
+          id: string
+          report_id: string
+          user_id: string
+          vote_type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          report_id: string
+          user_id: string
+          vote_type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          report_id?: string
+          user_id?: string
+          vote_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "votes_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "citizen" | "moderator" | "admin" | "superadmin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +813,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["citizen", "moderator", "admin", "superadmin"],
+    },
   },
 } as const

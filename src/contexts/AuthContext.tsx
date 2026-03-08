@@ -1,14 +1,45 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
-import apiClient from '@/lib/apiClient';
-import type { User, AuthState, AuthResponse } from '@/types';
+import { supabase } from '@/integrations/supabase/client';
+import type { User, AuthState, UserRole } from '@/types';
 
 interface AuthContextType extends AuthState {
-  sendOTP: (phone: string) => Promise<void>;
-  verifyOTP: (phone: string, otp: string) => Promise<void>;
-  logout: () => void;
+  signUp: (email: string, password: string, meta?: { name?: string; district?: string }) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
+
+async function fetchProfile(userId: string): Promise<User | null> {
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('user_id', userId)
+    .single();
+
+  const { data: roles } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', userId);
+
+  if (!profile) return null;
+
+  const role: UserRole = (roles?.[0]?.role as UserRole) ?? 'citizen';
+
+  return {
+    id: userId,
+    name: profile.name || '',
+    phone: profile.phone || '',
+    email: profile.email || '',
+    role,
+    district: profile.district || '',
+    trustScore: profile.trust_score ?? 50,
+    truthScore: profile.truth_score ?? 50,
+    avatar: profile.avatar_url || undefined,
+    language: (profile.language as 'bn' | 'en') || 'bn',
+    createdAt: profile.created_at,
+  };
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({
@@ -18,43 +49,67 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loading: true,
   });
 
-  // Hydrate from localStorage
   useEffect(() => {
-    const token = localStorage.getItem('auth_token');
-    const userStr = localStorage.getItem('auth_user');
-    if (token && userStr) {
-      try {
-        const user: User = JSON.parse(userStr);
-        setState({ user, token, isAuthenticated: true, loading: false });
-      } catch {
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('auth_user');
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        // Use setTimeout to avoid Supabase deadlock
+        setTimeout(async () => {
+          const user = await fetchProfile(session.user.id);
+          setState({
+            user,
+            token: session.access_token,
+            isAuthenticated: true,
+            loading: false,
+          });
+        }, 0);
+      } else {
+        setState({ user: null, token: null, isAuthenticated: false, loading: false });
+      }
+    });
+
+    // THEN check existing session
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session?.user) {
+        const user = await fetchProfile(session.user.id);
+        setState({
+          user,
+          token: session.access_token,
+          isAuthenticated: true,
+          loading: false,
+        });
+      } else {
         setState(s => ({ ...s, loading: false }));
       }
-    } else {
-      setState(s => ({ ...s, loading: false }));
-    }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const sendOTP = useCallback(async (phone: string) => {
-    await apiClient.post('/auth/otp/send', { phone });
+  const signUp = useCallback(async (email: string, password: string, meta?: { name?: string; district?: string }) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { name: meta?.name || '', district: meta?.district || '' },
+        emailRedirectTo: window.location.origin,
+      },
+    });
+    if (error) throw error;
   }, []);
 
-  const verifyOTP = useCallback(async (phone: string, otp: string) => {
-    const { data } = await apiClient.post<AuthResponse>('/auth/otp/verify', { phone, otp });
-    localStorage.setItem('auth_token', data.token);
-    localStorage.setItem('auth_user', JSON.stringify(data.user));
-    setState({ user: data.user, token: data.token, isAuthenticated: true, loading: false });
+  const signIn = useCallback(async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
   }, []);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('auth_user');
+  const logout = useCallback(async () => {
+    await supabase.auth.signOut();
     setState({ user: null, token: null, isAuthenticated: false, loading: false });
   }, []);
 
   return (
-    <AuthContext.Provider value={{ ...state, sendOTP, verifyOTP, logout }}>
+    <AuthContext.Provider value={{ ...state, signUp, signIn, logout }}>
       {children}
     </AuthContext.Provider>
   );

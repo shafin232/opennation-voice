@@ -14,6 +14,7 @@ import AdminLayout from "@/layouts/AdminLayout";
 
 // Pages
 import NotFound from "@/pages/NotFound";
+import LoginPage from "@/pages/LoginPage";
 
 // Citizen Pages
 import FeedPage from "@/pages/citizen/FeedPage";
@@ -52,6 +53,7 @@ const App = () => (
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Navigate to="/app" replace />} />
+                <Route path="/login" element={<LoginPage />} />
 
                 {/* Citizen Area */}
                 <Route

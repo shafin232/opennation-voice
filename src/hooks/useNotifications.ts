@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
-import apiClient from '@/lib/apiClient';
-import type { Notification, PaginatedResponse, ApiResponse } from '@/types';
+import { supabase } from '@/integrations/supabase/client';
+import type { Notification } from '@/types';
 
 export function useNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -12,12 +12,26 @@ export function useNotifications() {
     setLoading(true);
     setError(null);
     try {
-      const { data } = await apiClient.get<PaginatedResponse<Notification>>('/notifications');
-      const items = data.data ?? [];
+      const { data, error: err } = await supabase
+        .from('notifications')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (err) throw err;
+
+      const items: Notification[] = (data ?? []).map(n => ({
+        id: n.id,
+        title: n.title,
+        body: n.body,
+        type: n.type as any,
+        read: n.read,
+        createdAt: n.created_at,
+      }));
+
       setNotifications(items);
       setUnreadCount(items.filter(n => !n.read).length);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to fetch notifications');
+      setError(err.message || 'Failed to fetch notifications');
     } finally {
       setLoading(false);
     }
@@ -25,11 +39,17 @@ export function useNotifications() {
 
   const markRead = useCallback(async (id: string) => {
     try {
-      await apiClient.patch<ApiResponse<null>>(`/notifications/${id}/read`);
+      const { error: err } = await supabase
+        .from('notifications')
+        .update({ read: true })
+        .eq('id', id);
+
+      if (err) throw err;
+
       setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
       setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to mark notification');
+      setError(err.message || 'Failed to mark notification');
     }
   }, []);
 
