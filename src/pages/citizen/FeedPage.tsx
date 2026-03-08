@@ -436,8 +436,8 @@ export default function FeedPage() {
                     </div>
 
                     {/* Content */}
-                    <div className="px-4 pb-3">
-                      <h3 className="text-base font-bold text-foreground mb-1.5 leading-snug">{report.title}</h3>
+                    <div className="px-4 pb-3 cursor-pointer" onClick={() => navigate(`/app/report/${report.id}`)}>
+                      <h3 className="text-base font-bold text-foreground mb-1.5 leading-snug hover:text-primary transition-colors">{report.title}</h3>
                       <p className="text-sm text-muted-foreground leading-relaxed line-clamp-4">{report.description}</p>
                     </div>
 
