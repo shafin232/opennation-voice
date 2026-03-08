@@ -15,6 +15,8 @@ export interface User {
   avatar?: string;
   language: 'bn' | 'en';
   createdAt: string;
+  citizenAlias?: string;
+  nidHash?: string;
 }
 
 export interface AuthState {
