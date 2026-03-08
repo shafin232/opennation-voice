@@ -475,10 +475,7 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-8 mb-12">
             <div className="md:col-span-2">
               <div className="flex items-center gap-2.5 mb-4">
-                <div className="h-9 w-9 rounded-xl gradient-neon flex items-center justify-center glow-neon">
-                  <Shield className="h-4.5 w-4.5 text-primary-foreground" />
-                </div>
-                <span className="font-bold tracking-tight">OpenNation</span>
+                <img src={logoImg} alt="OpenNation" className="h-9 object-contain" />
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
                 AI-powered civic intelligence platform ensuring national transparency and accountability for every citizen of Bangladesh.
