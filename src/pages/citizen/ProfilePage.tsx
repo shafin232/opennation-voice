@@ -5,9 +5,11 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Badge } from '@/components/ui/badge';
 import { ReputationBadge } from '@/components/shared/ReputationBadge';
 import { CircularProgress } from '@/components/shared/CircularProgress';
-import { Phone, MapPin, Calendar, Mail, Shield, Activity, Award, ExternalLink } from 'lucide-react';
+import { Phone, MapPin, Calendar, Mail, Shield, Activity, Award, ExternalLink, Edit2 } from 'lucide-react';
 import { IntegrityBreakdown } from '@/components/shared/IntegrityBreakdown';
 import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 const slamIn = {
   hidden: { scale: 0.92, opacity: 0, y: 12 },
