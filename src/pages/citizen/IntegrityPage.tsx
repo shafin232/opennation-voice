@@ -20,7 +20,6 @@ const slamIn = {
 
 export default function IntegrityPage() {
   const { metrics, loading, error, fetchMetrics } = useIntegrity();
-  const { metrics, loading, error, fetchMetrics } = useIntegrity();
   const { t } = useLanguage();
   const [nii, setNii] = useState<any>(null);
   const [ranking, setRanking] = useState<any[]>([]);

@@ -12,7 +12,6 @@ import { TrendingUp, AlertTriangle, BarChart3, Shield, Target } from 'lucide-rea
 
 export default function TenderAnalysisPage() {
   const { tenders, loading, error, fetchTenders } = useAdmin();
-  const { tenders, loading, error, fetchTenders } = useAdmin();
   const { t } = useLanguage();
   const [bidRotationData, setBidRotationData] = useState<any>(null);
   const [hhiData, setHhiData] = useState<any>(null);
