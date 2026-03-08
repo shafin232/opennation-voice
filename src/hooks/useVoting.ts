@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { VotePayload, VoteResponse } from '@/types';
 import { useApp } from '@/contexts/AppContext';
-import { weightVote, logAction, computeReputation } from '@/lib/algorithms';
+import { weightVote, logAction, computeReputation, computeTruth } from '@/lib/algorithms';
 
 export function useVoting() {
   const [loading, setLoading] = useState(false);
