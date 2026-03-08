@@ -67,10 +67,12 @@ export default function ReportDetailPage() {
 
     if (reportRes.data) {
       setReport(reportRes.data);
-      const { data: profile } = await supabase
-        .from('profiles').select('name, avatar_url, trust_score')
-        .eq('user_id', reportRes.data.author_id).single();
-      setAuthor(profile);
+      if (!(reportRes.data as any).is_anonymous) {
+        const { data: profile } = await supabase
+          .from('profiles').select('name, avatar_url, trust_score, citizen_alias')
+          .eq('user_id', reportRes.data.author_id).single();
+        setAuthor(profile);
+      }
     }
     setEvidence(evidenceRes.data ?? []);
     await loadComments();
