@@ -7,10 +7,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { ErrorBanner } from '@/components/shared/ErrorBanner';
 import { SecureLinkAnimation } from '@/components/shared/SecureLinkAnimation';
 import { toast } from 'sonner';
-import { FileText, Upload, MapPin, Send, AlertTriangle, ArrowRight, ArrowLeft, CheckCircle, Shield, X, Image, File } from 'lucide-react';
+import { FileText, Upload, MapPin, Send, AlertTriangle, ArrowRight, ArrowLeft, CheckCircle, Shield, X, Image, File, EyeOff } from 'lucide-react';
 import type { ReportCategory } from '@/types';
 
 const categories: { value: ReportCategory; label: string; emoji: string }[] = [
@@ -34,6 +35,7 @@ export default function SubmitReportPage() {
   const [category, setCategory] = useState<ReportCategory>('other');
   const [district, setDistrict] = useState('');
   const [files, setFiles] = useState<File[]>([]);
+  const [isAnonymous, setIsAnonymous] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [dragOver, setDragOver] = useState(false);
 
@@ -44,6 +46,7 @@ export default function SubmitReportPage() {
         title, description, category,
         location: { district },
         evidence: files.length > 0 ? files : undefined,
+        isAnonymous,
       });
       setSubmitted(true);
       toast.success(t('reportSubmitted'));
@@ -235,6 +238,34 @@ export default function SubmitReportPage() {
                     </div>
                   )}
                 </div>
+
+                {/* Anonymous Toggle */}
+                <div className="p-4 rounded-xl bg-muted/10 border border-border/30 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <EyeOff className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold">বেনামী রিপোর্ট</p>
+                        <p className="text-[10px] text-muted-foreground">আপনার পরিচয় সম্পূর্ণ গোপন থাকবে</p>
+                      </div>
+                    </div>
+                    <Switch checked={isAnonymous} onCheckedChange={setIsAnonymous} />
+                  </div>
+                  {isAnonymous && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="overflow-hidden">
+                      <div className="flex items-start gap-2 p-3 rounded-lg bg-success/5 border border-success/20">
+                        <Shield className="h-4 w-4 text-success mt-0.5 shrink-0" />
+                        <div className="text-[11px] text-success/90 space-y-1">
+                          <p className="font-bold">হুইসেলব্লোয়ার সুরক্ষা সক্রিয়</p>
+                          <p>আপনার ইউজার আইডি রিপোর্ট থেকে সম্পূর্ণ আলাদা করা হবে। এমনকি অ্যাডমিনরাও আপনার পরিচয় দেখতে পারবে না।</p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
+
                 <div className="flex gap-3">
                   <Button variant="outline" onClick={() => setStep(1)} className="flex-1 h-12 gap-2 border-border/40 rounded-xl font-semibold">
                     <ArrowLeft className="h-4 w-4" /> পূর্ববর্তী

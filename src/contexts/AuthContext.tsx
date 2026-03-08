@@ -41,6 +41,8 @@ async function fetchProfile(userId: string): Promise<User | null> {
     avatar: profile.avatar_url || undefined,
     language: (profile.language as 'bn' | 'en') || 'bn',
     createdAt: profile.created_at,
+    citizenAlias: (profile as any).citizen_alias || undefined,
+    nidHash: (profile as any).nid_hash || undefined,
   };
 }
 

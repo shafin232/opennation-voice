@@ -85,6 +85,9 @@ export default function ProfilePage() {
               <ReputationBadge score={avgScore} size="lg" />
             </div>
             <h2 className="text-2xl font-bold tracking-tight">{user.name}</h2>
+            {user.citizenAlias && (
+              <p className="text-xs text-primary/80 font-mono-data mt-0.5">🔒 {user.citizenAlias}</p>
+            )}
             <Button variant="ghost" size="sm" onClick={() => navigate('/app/profile/edit')} className="mt-2 text-xs text-primary gap-1.5">
               <Edit2 className="h-3 w-3" /> প্রোফাইল এডিট করুন
             </Button>

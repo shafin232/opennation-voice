@@ -15,6 +15,8 @@ export interface User {
   avatar?: string;
   language: 'bn' | 'en';
   createdAt: string;
+  citizenAlias?: string;
+  nidHash?: string;
 }
 
 export interface AuthState {
@@ -48,7 +50,9 @@ export interface Report {
   evidence: Evidence[];
   authorId: string;
   authorName: string;
+  authorAlias?: string;
   authorAvatar?: string;
+  isAnonymous?: boolean;
   supportCount: number;
   doubtCount: number;
   commentCount?: number;
@@ -92,6 +96,7 @@ export interface ReportSubmission {
   category: ReportCategory;
   location: Location;
   evidence?: File[];
+  isAnonymous?: boolean;
 }
 
 // Voting

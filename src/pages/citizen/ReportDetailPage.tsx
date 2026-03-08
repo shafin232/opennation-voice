@@ -10,7 +10,7 @@ import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import {
   ArrowLeft, MapPin, Clock, Shield, ThumbsUp, ThumbsDown, User2, Share2,
-  CheckCircle2, AlertCircle, Eye, MessageCircle, Send, X, Image as ImageIcon
+  CheckCircle2, AlertCircle, Eye, MessageCircle, Send, X, Image as ImageIcon, EyeOff
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
@@ -67,10 +67,12 @@ export default function ReportDetailPage() {
 
     if (reportRes.data) {
       setReport(reportRes.data);
-      const { data: profile } = await supabase
-        .from('profiles').select('name, avatar_url, trust_score')
-        .eq('user_id', reportRes.data.author_id).single();
-      setAuthor(profile);
+      if (!(reportRes.data as any).is_anonymous) {
+        const { data: profile } = await supabase
+          .from('profiles').select('name, avatar_url, trust_score, citizen_alias')
+          .eq('user_id', reportRes.data.author_id).single();
+        setAuthor(profile);
+      }
     }
     setEvidence(evidenceRes.data ?? []);
     await loadComments();
@@ -85,13 +87,17 @@ export default function ReportDetailPage() {
     if (data && data.length > 0) {
       const userIds = [...new Set(data.map(c => c.user_id))];
       const { data: profiles } = await supabase
-        .from('profiles').select('user_id, name').in('user_id', userIds);
-      const map = new Map((profiles ?? []).map(p => [p.user_id, p.name]));
+        .from('profiles').select('user_id, name, citizen_alias').in('user_id', userIds);
+      const map = new Map((profiles ?? []).map(p => [p.user_id, p]));
 
-      setComments(data.map(c => ({
-        id: c.id, body: c.body, userName: map.get(c.user_id) || 'Anonymous',
-        createdAt: c.created_at, userId: c.user_id,
-      })));
+      setComments(data.map(c => {
+        const p = map.get(c.user_id);
+        return {
+          id: c.id, body: c.body,
+          userName: (p as any)?.citizen_alias || p?.name || 'Anonymous',
+          createdAt: c.created_at, userId: c.user_id,
+        };
+      }));
     }
   };
 
@@ -129,7 +135,8 @@ export default function ReportDetailPage() {
 
   const cat = catConfig[report.category] || catConfig.other;
   const truthPct = Math.round((report.truth_probability ?? 0.5) * 100);
-  const isOwn = user?.id === report.author_id;
+  const isAnon = (report as any).is_anonymous === true;
+  const isOwn = !isAnon && user?.id === report.author_id;
 
   return (
     <div className="max-w-2xl mx-auto space-y-4">
@@ -140,15 +147,22 @@ export default function ReportDetailPage() {
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="glass-panel rounded-2xl overflow-hidden">
         {/* Author */}
         <div className="p-5 flex items-center gap-3">
-          <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center ring-2 ring-primary/20 overflow-hidden">
-            {author?.avatar_url ? (
+          <div className={`h-12 w-12 rounded-full flex items-center justify-center ring-2 overflow-hidden ${
+            isAnon ? 'bg-muted/30 ring-muted/30' : 'bg-primary/10 ring-primary/20'
+          }`}>
+            {isAnon ? (
+              <EyeOff className="h-6 w-6 text-muted-foreground" />
+            ) : author?.avatar_url ? (
               <img src={author.avatar_url} alt="" className="h-full w-full object-cover" />
             ) : (
               <User2 className="h-6 w-6 text-primary" />
             )}
           </div>
           <div className="flex-1">
-            <p className="font-semibold">{author?.name || 'Anonymous'}</p>
+            <div className="flex items-center gap-2">
+              <p className="font-semibold">{isAnon ? '🔒 বেনামী নাগরিক' : (author?.citizen_alias || author?.name || 'Anonymous')}</p>
+              {isAnon && <Badge variant="outline" className="text-[9px] border-muted-foreground/30 text-muted-foreground">গোপনীয়</Badge>}
+            </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span>{timeAgo(report.created_at)}</span>
               <span>·</span>

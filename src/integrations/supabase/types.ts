@@ -362,6 +362,7 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          citizen_alias: string | null
           created_at: string
           district: string
           effective_trust: number | null
@@ -369,6 +370,7 @@ export type Database = {
           id: string
           language: string
           name: string
+          nid_hash: string | null
           phone: string | null
           reputation_raw: number | null
           trust_score: number
@@ -378,6 +380,7 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          citizen_alias?: string | null
           created_at?: string
           district?: string
           effective_trust?: number | null
@@ -385,6 +388,7 @@ export type Database = {
           id?: string
           language?: string
           name?: string
+          nid_hash?: string | null
           phone?: string | null
           reputation_raw?: number | null
           trust_score?: number
@@ -394,6 +398,7 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          citizen_alias?: string | null
           created_at?: string
           district?: string
           effective_trust?: number | null
@@ -401,6 +406,7 @@ export type Database = {
           id?: string
           language?: string
           name?: string
+          nid_hash?: string | null
           phone?: string | null
           reputation_raw?: number | null
           trust_score?: number
@@ -506,6 +512,7 @@ export type Database = {
           district: string
           doubt_count: number
           id: string
+          is_anonymous: boolean
           lat: number | null
           lng: number | null
           status: string
@@ -527,6 +534,7 @@ export type Database = {
           district?: string
           doubt_count?: number
           id?: string
+          is_anonymous?: boolean
           lat?: number | null
           lng?: number | null
           status?: string
@@ -548,6 +556,7 @@ export type Database = {
           district?: string
           doubt_count?: number
           id?: string
+          is_anonymous?: boolean
           lat?: number | null
           lng?: number | null
           status?: string
@@ -775,6 +784,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_citizen_alias: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

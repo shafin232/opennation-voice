@@ -30,7 +30,7 @@ export function useReports() {
       // Fetch author names
       const authorIds = [...new Set((data ?? []).map((r: any) => r.author_id))];
       const { data: profilesData } = authorIds.length > 0
-        ? await supabase.from('profiles').select('user_id, name, avatar_url').in('user_id', authorIds)
+        ? await supabase.from('profiles').select('user_id, name, avatar_url, citizen_alias').in('user_id', authorIds)
         : { data: [] };
       const profileMap = new Map((profilesData ?? []).map((p: any) => [p.user_id, p]));
 
@@ -63,6 +63,7 @@ export function useReports() {
 
       const mapped: Report[] = (data ?? []).map((r: any) => {
         const profile = profileMap.get(r.author_id);
+        const isAnon = r.is_anonymous === true;
         return {
           id: r.id,
           title: r.title,
@@ -70,9 +71,11 @@ export function useReports() {
           category: r.category,
           location: { district: r.district, upazila: r.upazila, address: r.address, lat: r.lat, lng: r.lng },
           evidence: evidenceMap.get(r.id) || [],
-          authorId: r.author_id,
-          authorName: profile?.name || 'Anonymous',
-          authorAvatar: profile?.avatar_url || undefined,
+          authorId: isAnon ? 'anonymous' : r.author_id,
+          authorName: isAnon ? 'বেনামী নাগরিক' : (profile?.citizen_alias || profile?.name || 'Anonymous'),
+          authorAlias: isAnon ? undefined : (profile?.citizen_alias || undefined),
+          authorAvatar: isAnon ? undefined : (profile?.avatar_url || undefined),
+          isAnonymous: isAnon,
           supportCount: r.support_count,
           doubtCount: r.doubt_count,
           commentCount: r.comment_count ?? 0,
@@ -140,7 +143,8 @@ export function useReports() {
           lat: submission.location.lat,
           lng: submission.location.lng,
           author_id: user.id,
-        })
+          is_anonymous: submission.isAnonymous ?? false,
+        } as any)
         .select()
         .single();
 
