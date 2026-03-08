@@ -66,6 +66,7 @@ interface Comment {
   id: string;
   body: string;
   userName: string;
+  userAlias: string;
   createdAt: string;
   userId: string;
 }
