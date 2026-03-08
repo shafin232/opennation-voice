@@ -45,7 +45,7 @@ export function useAdmin() {
     setLoading(true); setError(null);
     try {
       const { data } = await apiClient.get<PaginatedResponse<TenderAnalysis>>('/admin/tenders');
-      setTenders(data.data);
+      setTenders(data.data ?? []);
     } catch (err: any) { setError(err.response?.data?.message || 'Failed'); }
     finally { setLoading(false); }
   }, []);
