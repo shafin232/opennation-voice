@@ -7,10 +7,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { ErrorBanner } from '@/components/shared/ErrorBanner';
 import { SecureLinkAnimation } from '@/components/shared/SecureLinkAnimation';
 import { toast } from 'sonner';
-import { FileText, Upload, MapPin, Send, AlertTriangle, ArrowRight, ArrowLeft, CheckCircle, Shield, X, Image, File } from 'lucide-react';
+import { FileText, Upload, MapPin, Send, AlertTriangle, ArrowRight, ArrowLeft, CheckCircle, Shield, X, Image, File, EyeOff } from 'lucide-react';
 import type { ReportCategory } from '@/types';
 
 const categories: { value: ReportCategory; label: string; emoji: string }[] = [
