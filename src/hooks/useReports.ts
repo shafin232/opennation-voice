@@ -30,7 +30,7 @@ export function useReports() {
       // Fetch author names
       const authorIds = [...new Set((data ?? []).map((r: any) => r.author_id))];
       const { data: profilesData } = authorIds.length > 0
-        ? await supabase.from('profiles').select('user_id, name, avatar_url').in('user_id', authorIds)
+        ? await supabase.from('profiles').select('user_id, name, avatar_url, citizen_alias').in('user_id', authorIds)
         : { data: [] };
       const profileMap = new Map((profilesData ?? []).map((p: any) => [p.user_id, p]));
 
