@@ -170,7 +170,7 @@ function CommentSection({ reportId, commentCount }: { reportId: string; commentC
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="bg-muted/15 rounded-xl px-3 py-2">
-                          <p className="text-xs font-semibold">{c.userName}</p>
+                          <p className="text-xs font-semibold">{c.userAlias || c.userName}</p>
                           <p className="text-xs text-foreground/80">{c.body}</p>
                         </div>
                         <p className="text-[10px] text-muted-foreground mt-0.5 ml-1">{timeAgo(c.createdAt)}</p>
