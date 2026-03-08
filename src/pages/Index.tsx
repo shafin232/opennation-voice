@@ -7,7 +7,7 @@ import {
   ChevronDown, CheckCircle2, MessageSquare, ChevronRight, Plus, Minus,
   Globe, Smartphone, Server, Award, TrendingUp, Heart
 } from 'lucide-react';
-import logoImg from '@/assets/logo.png';
+
 
 /* ═══════ DATA ═══════ */
 const features = [
