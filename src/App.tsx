@@ -13,7 +13,6 @@ import CitizenLayout from "@/layouts/CitizenLayout";
 import AdminLayout from "@/layouts/AdminLayout";
 
 // Pages
-import LoginPage from "@/pages/LoginPage";
 import NotFound from "@/pages/NotFound";
 
 // Citizen Pages
@@ -52,8 +51,7 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <Routes>
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/" element={<Navigate to="/login" replace />} />
+                <Route path="/" element={<Navigate to="/app" replace />} />
 
                 {/* Citizen Area */}
                 <Route
