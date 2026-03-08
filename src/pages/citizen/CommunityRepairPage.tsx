@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Plus, Wrench, MapPin } from 'lucide-react';
+import { Plus, Wrench, MapPin, ThumbsUp } from 'lucide-react';
 import apiClient from '@/lib/apiClient';
 import type { RepairRequest, PaginatedResponse, ApiResponse } from '@/types';
 
@@ -53,35 +53,47 @@ export default function CommunityRepairPage() {
     finally { setSubmitting(false); }
   };
 
+  const categoryIcons: Record<string, string> = {
+    road: '🛣️', water: '💧', electricity: '⚡', sanitation: '🚰', other: '🔧'
+  };
+
   return (
-    <div className="space-y-4 max-w-3xl mx-auto">
+    <div className="space-y-6 max-w-3xl mx-auto">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-foreground">{t('communityRepair')}</h1>
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl bg-warning/10 flex items-center justify-center">
+            <Wrench className="h-5 w-5 text-warning" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground tracking-tight">{t('communityRepair')}</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">এলাকার মেরামত আবেদন</p>
+          </div>
+        </div>
         {!crisisMode.active && (
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button size="sm" className="gap-1"><Plus className="h-4 w-4" />{t('submit')}</Button>
+              <Button size="sm" className="gap-1.5 gradient-primary border-0 shadow-sm"><Plus className="h-4 w-4" />{t('submit')}</Button>
             </DialogTrigger>
-            <DialogContent>
-              <DialogHeader><DialogTitle>মেরামত আবেদন</DialogTitle></DialogHeader>
-              <div className="space-y-3">
-                <div><Label>শিরোনাম</Label><Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} /></div>
-                <div><Label>বিবরণ</Label><Textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={3} /></div>
-                <div><Label>জেলা</Label><Input value={form.district} onChange={e => setForm(f => ({ ...f, district: e.target.value }))} /></div>
-                <div>
-                  <Label>বিভাগ</Label>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader><DialogTitle className="text-lg">মেরামত আবেদন</DialogTitle></DialogHeader>
+              <div className="space-y-4 pt-2">
+                <div className="space-y-1.5"><Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">শিরোনাম</Label><Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} className="h-11 bg-muted/30" /></div>
+                <div className="space-y-1.5"><Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">বিবরণ</Label><Textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={3} className="bg-muted/30 resize-none" /></div>
+                <div className="space-y-1.5"><Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">জেলা</Label><Input value={form.district} onChange={e => setForm(f => ({ ...f, district: e.target.value }))} className="h-11 bg-muted/30" /></div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">বিভাগ</Label>
                   <Select value={form.category} onValueChange={v => setForm(f => ({ ...f, category: v as any }))}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="h-11 bg-muted/30"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="road">রাস্তা</SelectItem>
-                      <SelectItem value="water">পানি</SelectItem>
-                      <SelectItem value="electricity">বিদ্যুৎ</SelectItem>
-                      <SelectItem value="sanitation">স্যানিটেশন</SelectItem>
-                      <SelectItem value="other">অন্যান্য</SelectItem>
+                      <SelectItem value="road">🛣️ রাস্তা</SelectItem>
+                      <SelectItem value="water">💧 পানি</SelectItem>
+                      <SelectItem value="electricity">⚡ বিদ্যুৎ</SelectItem>
+                      <SelectItem value="sanitation">🚰 স্যানিটেশন</SelectItem>
+                      <SelectItem value="other">🔧 অন্যান্য</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-                <Button className="w-full" onClick={handleSubmit} disabled={submitting || !form.title.trim()}>
+                <Button className="w-full h-11 gradient-primary border-0" onClick={handleSubmit} disabled={submitting || !form.title.trim()}>
                   {submitting ? t('loading') : t('submit')}
                 </Button>
               </div>
@@ -93,25 +105,30 @@ export default function CommunityRepairPage() {
       {error && <ErrorBanner message={error} onRetry={fetchRequests} />}
 
       {loading ? <LoadingSkeleton rows={4} type="list" /> : requests.length === 0 ? (
-        <p className="text-muted-foreground text-center py-12">{t('noData')}</p>
+        <div className="text-center py-16">
+          <div className="h-16 w-16 mx-auto rounded-2xl bg-muted flex items-center justify-center mb-4">
+            <Wrench className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <p className="text-muted-foreground font-medium">{t('noData')}</p>
+        </div>
       ) : (
         <div className="space-y-3">
           {requests.map(req => (
-            <Card key={req.id}>
+            <Card key={req.id} className="border-border/60 hover:shadow-sm transition-all">
               <CardHeader className="pb-2">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2">
-                    <Wrench className="h-4 w-4 text-muted-foreground" />
-                    <CardTitle className="text-sm">{req.title}</CardTitle>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-lg">{categoryIcons[req.category] || '🔧'}</span>
+                    <CardTitle className="text-sm leading-snug">{req.title}</CardTitle>
                   </div>
-                  <Badge variant="secondary">{req.status}</Badge>
+                  <Badge variant="secondary" className="shrink-0 text-xs">{req.status}</Badge>
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground">{req.description}</p>
-                <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
-                  <MapPin className="h-3 w-3" />{req.location.district}
-                  <span>· সমর্থন: {req.supportCount}</span>
+                <p className="text-sm text-muted-foreground leading-relaxed">{req.description}</p>
+                <div className="flex items-center gap-3 mt-2.5 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{req.location.district}</span>
+                  <span className="flex items-center gap-1"><ThumbsUp className="h-3 w-3" />সমর্থন: {req.supportCount}</span>
                 </div>
               </CardContent>
             </Card>

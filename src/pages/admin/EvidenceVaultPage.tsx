@@ -4,7 +4,7 @@ import { LoadingSkeleton } from '@/components/shared/LoadingSkeleton';
 import { ErrorBanner } from '@/components/shared/ErrorBanner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Archive, Eye, EyeOff } from 'lucide-react';
+import { Archive, Eye, EyeOff, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import apiClient from '@/lib/apiClient';
 import type { Evidence, PaginatedResponse } from '@/types';
@@ -39,38 +39,54 @@ export default function EvidenceVaultPage() {
   };
 
   return (
-    <div className="space-y-4 max-w-4xl mx-auto">
-      <div className="flex items-center gap-2">
-        <Archive className="h-6 w-6 text-primary" />
-        <h1 className="text-2xl font-bold text-foreground">{t('evidenceVault')}</h1>
+    <div className="space-y-6 max-w-4xl mx-auto">
+      <div className="flex items-center gap-3">
+        <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center">
+          <Archive className="h-5 w-5 text-muted-foreground" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">{t('evidenceVault')}</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">সুরক্ষিত প্রমাণাদি সংরক্ষণ</p>
+        </div>
       </div>
 
       {error && <ErrorBanner message={error} onRetry={fetchEvidence} />}
 
       {loading ? <LoadingSkeleton rows={4} /> : evidence.length === 0 ? (
-        <p className="text-muted-foreground text-center py-12">{t('noData')}</p>
+        <div className="text-center py-16">
+          <div className="h-16 w-16 mx-auto rounded-2xl bg-muted flex items-center justify-center mb-4">
+            <Archive className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <p className="text-muted-foreground font-medium">{t('noData')}</p>
+        </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {evidence.map(e => (
-            <Card key={e.id}>
+            <Card key={e.id} className="border-border/60 overflow-hidden">
               <CardHeader className="pb-2">
-                <div className="flex items-start justify-between">
-                  <CardTitle className="text-sm">{e.reportTitle}</CardTitle>
-                  <Badge variant="secondary">{e.type}</Badge>
+                <div className="flex items-start justify-between gap-2">
+                  <CardTitle className="text-sm leading-snug">{e.reportTitle}</CardTitle>
+                  <Badge variant="secondary" className="shrink-0 text-xs">{e.type}</Badge>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-2">
-                <div className={`h-32 rounded-md bg-muted flex items-center justify-center overflow-hidden ${e.blurred && !revealed.has(e.id) ? 'blur-lg' : ''}`}>
+              <CardContent className="space-y-3">
+                <div className={`h-36 rounded-xl bg-muted flex items-center justify-center overflow-hidden relative transition-all ${e.blurred && !revealed.has(e.id) ? 'blur-xl' : ''}`}>
                   {e.type === 'image' ? (
                     <img src={e.url} alt="Evidence" className="w-full h-full object-cover" />
                   ) : (
                     <span className="text-muted-foreground text-sm">{e.type}</span>
                   )}
+                  {e.blurred && !revealed.has(e.id) && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="h-12 w-12 rounded-xl bg-background/80 backdrop-blur-sm flex items-center justify-center">
+                        <Lock className="h-6 w-6 text-muted-foreground" />
+                      </div>
+                    </div>
+                  )}
                 </div>
                 {e.blurred && (
-                  <Button size="sm" variant="outline" onClick={() => toggleReveal(e.id)} className="gap-1 w-full">
-                    {revealed.has(e.id) ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                    {revealed.has(e.id) ? 'ব্লার করুন' : 'দেখুন'}
+                  <Button size="sm" variant="outline" onClick={() => toggleReveal(e.id)} className="gap-1.5 w-full">
+                    {revealed.has(e.id) ? <><EyeOff className="h-3.5 w-3.5" />ব্লার করুন</> : <><Eye className="h-3.5 w-3.5" />দেখুন</>}
                   </Button>
                 )}
               </CardContent>

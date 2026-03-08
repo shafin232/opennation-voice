@@ -9,8 +9,10 @@ export function CrisisBanner() {
   if (!crisisMode.active) return null;
 
   return (
-    <div className="bg-destructive text-destructive-foreground px-4 py-2 flex items-center gap-2 text-sm font-medium">
-      <AlertTriangle className="h-4 w-4 shrink-0" />
+    <div className="bg-destructive text-destructive-foreground px-4 py-2.5 flex items-center justify-center gap-2.5 text-sm font-semibold animate-fade-in">
+      <div className="h-5 w-5 rounded-full bg-white/20 flex items-center justify-center">
+        <AlertTriangle className="h-3 w-3 shrink-0" />
+      </div>
       <span>{t('crisisActive')} — {t('crisisNotice')}</span>
     </div>
   );

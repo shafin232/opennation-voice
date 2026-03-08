@@ -10,9 +10,9 @@ export function LanguageToggle() {
       variant="ghost"
       size="sm"
       onClick={() => setLang(lang === 'bn' ? 'en' : 'bn')}
-      className="gap-1.5"
+      className="gap-1.5 text-xs font-medium px-2.5"
     >
-      <Globe className="h-4 w-4" />
+      <Globe className="h-3.5 w-3.5" />
       {lang === 'bn' ? 'EN' : 'বাং'}
     </Button>
   );
