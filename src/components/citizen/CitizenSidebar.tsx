@@ -34,6 +34,7 @@ export function CitizenSidebar() {
       items: [
         { title: t('projects'), url: '/app/projects', icon: Building2 },
         { title: t('rti'), url: '/app/rti', icon: FileSearch },
+        { title: t('tenderAnalysis'), url: '/app/tenders', icon: TrendingUp },
         { title: t('hospitals'), url: '/app/hospitals', icon: Hospital },
         { title: t('integrity'), url: '/app/integrity', icon: BarChart3 },
       ],
