@@ -53,15 +53,6 @@ export function CitizenSidebar() {
   return (
     <Sidebar collapsible="icon" className="border-r border-border/30 glass-sidebar">
       <SidebarHeader className="p-4 pb-3">
-        {!collapsed ? (
-          <div className="flex items-center gap-3">
-            <img src={logoImg} alt="OpenNation" className="h-16 object-contain" />
-          </div>
-        ) : (
-          <div className="flex justify-center">
-            <img src={logoImg} alt="OpenNation" className="h-11 w-11 object-contain" />
-          </div>
-        )}
       </SidebarHeader>
       <SidebarContent className="px-2 mt-2">
         {sections.map((section, si) => (
