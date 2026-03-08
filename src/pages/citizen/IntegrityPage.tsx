@@ -1,14 +1,16 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useIntegrity } from '@/hooks/useIntegrity';
+import { useAlgorithms } from '@/hooks/useAlgorithms';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LoadingSkeleton } from '@/components/shared/LoadingSkeleton';
 import { ErrorBanner } from '@/components/shared/ErrorBanner';
 import { IntegrityCard } from '@/components/shared/IntegrityCard';
 import { IntegrityMap } from '@/components/shared/IntegrityMap';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { BarChart3, Globe, Shield } from 'lucide-react';
+import { BarChart3, Globe, Shield, TrendingUp, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const slamIn = {
@@ -18,9 +20,20 @@ const slamIn = {
 
 export default function IntegrityPage() {
   const { metrics, loading, error, fetchMetrics } = useIntegrity();
+  const { nationalIndex, districtRanking } = useAlgorithms();
   const { t } = useLanguage();
+  const [nii, setNii] = useState<any>(null);
+  const [ranking, setRanking] = useState<any[]>([]);
 
   useEffect(() => { fetchMetrics(); }, [fetchMetrics]);
+
+  // Fetch NII & ranking when metrics load
+  useEffect(() => {
+    if (metrics.length > 0) {
+      nationalIndex('volume').then(setNii).catch(() => {});
+      districtRanking().then((r: any) => setRanking(r?.ranking ?? [])).catch(() => {});
+    }
+  }, [metrics.length, nationalIndex, districtRanking]);
 
   return (
     <div className="space-y-8 max-w-6xl mx-auto">
@@ -39,6 +52,63 @@ export default function IntegrityPage() {
           </div>
         </div>
       </motion.div>
+
+      {/* National Integrity Index Card */}
+      {nii && (
+        <motion.div variants={slamIn} initial="hidden" animate="show">
+          <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">জাতীয় সততা সূচক (NII)</p>
+                  <p className="text-5xl font-bold text-foreground mt-2">
+                    {nii.national_integrity_index?.toFixed(1) ?? '—'}
+                    <span className="text-lg text-muted-foreground font-normal">/100</span>
+                  </p>
+                </div>
+                <div className="text-right space-y-1">
+                  <Badge variant="outline" className="text-[10px]">
+                    {nii.eligible_districts} জেলা অন্তর্ভুক্ত
+                  </Badge>
+                  <p className="text-[10px] text-muted-foreground">
+                    {nii.excluded_districts} জেলা বাদ (ন্যূনতম রিপোর্ট পূরণ হয়নি)
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+
+      {/* District Ranking */}
+      {ranking.length > 0 && (
+        <motion.div variants={slamIn} initial="hidden" animate="show">
+          <Card className="border-border/60">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Award className="h-4 w-4 text-primary" />
+                জেলা র‍্যাংকিং (কম্পোজিট স্কোর)
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {ranking.slice(0, 10).map((d: any, i: number) => (
+                  <div key={d.district} className="flex items-center gap-3 p-2 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
+                    <span className={`text-sm font-bold w-6 text-center ${i < 3 ? 'text-primary' : 'text-muted-foreground'}`}>
+                      {i + 1}
+                    </span>
+                    <span className="text-sm font-medium flex-1">{d.district}</span>
+                    <span className="text-xs text-muted-foreground">{d.total_reports} রিপোর্ট</span>
+                    <Badge variant="outline" className="text-[10px] font-mono">
+                      {d.composite?.toFixed(1)}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
 
       {error && <ErrorBanner message={error} onRetry={() => fetchMetrics()} />}
 

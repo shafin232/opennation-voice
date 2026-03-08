@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Report, ReportSubmission } from '@/types';
+import { useAlgorithms } from './useAlgorithms';
 
 export function useReports() {
   const [reports, setReports] = useState<Report[]>([]);
@@ -9,6 +10,7 @@ export function useReports() {
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
   const LIMIT = 20;
+  const { computeTruth, logAction, computeReputation } = useAlgorithms();
 
   const fetchReports = useCallback(async (pageNum = 1, reset = false) => {
     setLoading(true);
@@ -46,6 +48,10 @@ export function useReports() {
         status: r.status,
         createdAt: r.created_at,
         updatedAt: r.updated_at,
+        // Algorithm fields
+        truthProbability: r.truth_probability,
+        authenticityScore: r.authenticity_score,
+        approvalDecision: r.approval_decision,
       }));
 
       setReports(prev => reset ? mapped : [...prev, ...mapped]);
@@ -102,6 +108,21 @@ export function useReports() {
         }
       }
 
+      // --- Algorithm: Log action ---
+      if (data) {
+        try {
+          await logAction(user.id, 'report', data.id, 'report', submission.location.lat, submission.location.lng);
+        } catch {
+          // Non-blocking
+        }
+
+        // --- Algorithm: Compute truth score (async, non-blocking) ---
+        computeTruth(data.id).catch(() => {});
+
+        // --- Algorithm: Update author reputation (async, non-blocking) ---
+        computeReputation(user.id).catch(() => {});
+      }
+
       return data;
     } catch (err: any) {
       setError(err.message || 'Failed to submit report');
@@ -109,7 +130,7 @@ export function useReports() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [logAction, computeTruth, computeReputation]);
 
   const loadMore = useCallback(() => {
     if (!loading && hasMore) fetchReports(page + 1);
