@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Report, ReportSubmission } from '@/types';
-import { useAlgorithms } from './useAlgorithms';
+import { computeTruth, logAction, computeReputation } from '@/lib/algorithms';
 
 export function useReports() {
   const [reports, setReports] = useState<Report[]>([]);
@@ -10,7 +10,6 @@ export function useReports() {
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
   const LIMIT = 20;
-  const { computeTruth, logAction, computeReputation } = useAlgorithms();
 
   const fetchReports = useCallback(async (pageNum = 1, reset = false) => {
     setLoading(true);
@@ -27,7 +26,6 @@ export function useReports() {
 
       if (err) throw err;
 
-      // Fetch author names
       const authorIds = [...new Set((data ?? []).map((r: any) => r.author_id))];
       const { data: profilesData } = authorIds.length > 0
         ? await supabase.from('profiles').select('user_id, name').in('user_id', authorIds)
@@ -48,7 +46,6 @@ export function useReports() {
         status: r.status,
         createdAt: r.created_at,
         updatedAt: r.updated_at,
-        // Algorithm fields
         truthProbability: r.truth_probability,
         authenticityScore: r.authenticity_score,
         approvalDecision: r.approval_decision,
@@ -108,18 +105,10 @@ export function useReports() {
         }
       }
 
-      // --- Algorithm: Log action ---
+      // --- Algorithms (non-blocking) ---
       if (data) {
-        try {
-          await logAction(user.id, 'report', data.id, 'report', submission.location.lat, submission.location.lng);
-        } catch {
-          // Non-blocking
-        }
-
-        // --- Algorithm: Compute truth score (async, non-blocking) ---
+        logAction(user.id, 'report', data.id, 'report', submission.location.lat, submission.location.lng).catch(() => {});
         computeTruth(data.id).catch(() => {});
-
-        // --- Algorithm: Update author reputation (async, non-blocking) ---
         computeReputation(user.id).catch(() => {});
       }
 
@@ -130,7 +119,7 @@ export function useReports() {
     } finally {
       setLoading(false);
     }
-  }, [logAction, computeTruth, computeReputation]);
+  }, []);
 
   const loadMore = useCallback(() => {
     if (!loading && hasMore) fetchReports(page + 1);

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAdmin } from '@/hooks/useAdmin';
-import { useAlgorithms } from '@/hooks/useAlgorithms';
+import { winRateAnomaly, bidRotation, hhiIndex, executionRisk } from '@/lib/algorithms';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LoadingSkeleton } from '@/components/shared/LoadingSkeleton';
 import { ErrorBanner } from '@/components/shared/ErrorBanner';
@@ -12,7 +12,6 @@ import { TrendingUp, AlertTriangle, BarChart3, Shield, Target } from 'lucide-rea
 
 export default function TenderAnalysisPage() {
   const { tenders, loading, error, fetchTenders } = useAdmin();
-  const { winRateAnomaly, bidRotation, hhiIndex, executionRisk } = useAlgorithms();
   const { t } = useLanguage();
   const [bidRotationData, setBidRotationData] = useState<any>(null);
   const [hhiData, setHhiData] = useState<any>(null);

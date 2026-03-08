@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useIntegrity } from '@/hooks/useIntegrity';
-import { useAlgorithms } from '@/hooks/useAlgorithms';
+import { nationalIndex, districtRanking } from '@/lib/algorithms';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LoadingSkeleton } from '@/components/shared/LoadingSkeleton';
 import { ErrorBanner } from '@/components/shared/ErrorBanner';
@@ -20,7 +20,6 @@ const slamIn = {
 
 export default function IntegrityPage() {
   const { metrics, loading, error, fetchMetrics } = useIntegrity();
-  const { nationalIndex, districtRanking } = useAlgorithms();
   const { t } = useLanguage();
   const [nii, setNii] = useState<any>(null);
   const [ranking, setRanking] = useState<any[]>([]);

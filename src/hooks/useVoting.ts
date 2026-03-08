@@ -2,13 +2,12 @@ import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { VotePayload, VoteResponse } from '@/types';
 import { useApp } from '@/contexts/AppContext';
-import { useAlgorithms } from './useAlgorithms';
+import { weightVote, logAction, computeReputation } from '@/lib/algorithms';
 
 export function useVoting() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { crisisMode } = useApp();
-  const { weightVote, logAction, computeReputation } = useAlgorithms();
 
   const vote = useCallback(async (payload: VotePayload): Promise<VoteResponse | null> => {
     if (crisisMode.active) {
@@ -22,25 +21,16 @@ export function useVoting() {
       if (!user) throw new Error('Not authenticated');
 
       // --- Algorithm: Get geographic vote weight ---
-      let voteWeight = 1.0;
       try {
-        // Try to get user's location for weighting
         const { data: profile } = await supabase
           .from('profiles')
           .select('district')
           .eq('user_id', user.id)
           .single();
 
-        const weightResult = await weightVote(
-          payload.reportId,
-          undefined, // voter_lat - would come from geolocation API
-          undefined, // voter_lng
-          profile?.district
-        );
-        voteWeight = weightResult?.weight ?? 1.0;
+        await weightVote(payload.reportId, undefined, undefined, profile?.district);
       } catch {
-        // If algorithm fails, use default weight
-        voteWeight = 1.0;
+        // If algorithm fails, continue with default
       }
 
       // Upsert vote
@@ -53,14 +43,10 @@ export function useVoting() {
 
       if (err) throw err;
 
-      // --- Algorithm: Log action for anti-farming tracking ---
-      try {
-        await logAction(user.id, 'vote', payload.reportId, 'report');
-      } catch {
-        // Non-blocking: action logging failure shouldn't break voting
-      }
+      // --- Algorithm: Log action (non-blocking) ---
+      logAction(user.id, 'vote', payload.reportId, 'report').catch(() => {});
 
-      // --- Algorithm: Recompute voter's reputation (async, non-blocking) ---
+      // --- Algorithm: Recompute reputation (non-blocking) ---
       computeReputation(user.id).catch(() => {});
 
       // Get updated counts
@@ -88,7 +74,7 @@ export function useVoting() {
     } finally {
       setLoading(false);
     }
-  }, [crisisMode.active, weightVote, logAction, computeReputation]);
+  }, [crisisMode.active]);
 
   return { vote, loading, error };
 }
