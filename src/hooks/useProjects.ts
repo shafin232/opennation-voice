@@ -25,7 +25,7 @@ export function useProjects() {
     setLoading(true);
     try {
       const { data } = await apiClient.get<PaginatedResponse<ProjectOpinion>>(`/projects/${projectId}/opinions`);
-      setOpinions(data.data);
+      setOpinions(data.data ?? []);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to fetch opinions');
     } finally {

@@ -14,7 +14,7 @@ export function useIntegrity() {
       const { data } = await apiClient.get<ApiResponse<IntegrityMetrics[]>>('/integrity', {
         params: district ? { district } : undefined,
       });
-      setMetrics(data.data);
+      setMetrics(data.data ?? []);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to fetch integrity metrics');
     } finally {

@@ -14,7 +14,7 @@ export function useHospitals() {
       const { data } = await apiClient.get<PaginatedResponse<Hospital>>('/hospitals', {
         params: district ? { district } : undefined,
       });
-      setHospitals(data.data);
+      setHospitals(data.data ?? []);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to fetch hospitals');
     } finally {

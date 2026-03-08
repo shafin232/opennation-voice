@@ -12,7 +12,7 @@ export function useRTI() {
     setError(null);
     try {
       const { data } = await apiClient.get<PaginatedResponse<RTIRequest>>('/rti');
-      setRequests(data.data);
+      setRequests(data.data ?? []);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to fetch RTI requests');
     } finally {
