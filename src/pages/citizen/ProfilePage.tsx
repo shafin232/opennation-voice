@@ -119,6 +119,9 @@ export default function ProfilePage() {
           </span>
         </div>
       </motion.div>
+
+      {/* Integrity Points Breakdown */}
+      <IntegrityBreakdown userId={user.id} />
     </div>
   );
 }
