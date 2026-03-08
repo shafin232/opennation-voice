@@ -105,6 +105,7 @@ const App = () => (
                   <Route path="district-integrity" element={<DistrictIntegrityPage />} />
                   <Route path="user-management" element={<UserManagementPage />} />
                   <Route path="analytics" element={<AnalyticsPage />} />
+                  <Route path="hospitals" element={<HospitalManagementPage />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />

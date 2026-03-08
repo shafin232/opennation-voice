@@ -44,6 +44,12 @@ export function AdminSidebar() {
       ],
     },
     {
+      label: 'ডেটা ম্যানেজমেন্ট',
+      items: [
+        { title: 'হাসপাতাল ম্যানেজমেন্ট', url: '/admin/hospitals', icon: Hospital },
+      ],
+    },
+    {
       label: 'আর্কাইভ',
       items: [
         { title: t('evidenceVault'), url: '/admin/evidence-vault', icon: Archive },
