@@ -12,7 +12,7 @@ import { BarChart3 } from 'lucide-react';
 
 const slamIn = {
   hidden: { scale: 0.9, opacity: 0 },
-  show: { scale: 1, opacity: 1, transition: { type: 'spring', stiffness: 300, damping: 25 } },
+  show: { scale: 1, opacity: 1, transition: { type: 'spring' as const, stiffness: 300, damping: 25 } },
 };
 
 export default function IntegrityPage() {
