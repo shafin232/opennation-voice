@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import {
-  Shield, ArrowRight, BarChart3, FileText, Users, Zap, Eye, Lock,
+  ArrowRight, BarChart3, FileText, Users, Zap, Eye, Lock,
   ChevronDown, CheckCircle2, MessageSquare, ChevronRight, Plus, Minus,
   Globe, Smartphone, Server, Award, TrendingUp, Heart
 } from 'lucide-react';
+import logoImg from '@/assets/logo.png';
 
 /* ═══════ DATA ═══════ */
 const features = [
