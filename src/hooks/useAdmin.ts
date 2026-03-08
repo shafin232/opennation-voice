@@ -267,6 +267,7 @@ export function useAdmin() {
 
   return {
     loading, error,
+    pendingReports, fetchPendingReports, approveReport,
     moderationQueue, fetchModerationQueue, moderateReport,
     toggleCrisisMode,
     tenders, fetchTenders,
