@@ -74,7 +74,7 @@ export function useAdmin() {
     setLoading(true); setError(null);
     try {
       const { data } = await apiClient.get<PaginatedResponse<IdentityUnlockRequest>>('/admin/identity-unlock');
-      setUnlockRequests(data.data);
+      setUnlockRequests(data.data ?? []);
     } catch (err: any) { setError(err.response?.data?.message || 'Failed'); }
     finally { setLoading(false); }
   }, []);
