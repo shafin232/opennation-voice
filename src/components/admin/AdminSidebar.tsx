@@ -29,6 +29,7 @@ export function AdminSidebar() {
     {
       label: 'বিশ্লেষণ',
       items: [
+        { title: 'অ্যানালিটিক্স', url: '/admin/analytics', icon: BarChart3 },
         { title: t('tenderAnalysis'), url: '/admin/tenders', icon: TrendingUp },
         { title: t('voteAnomaly'), url: '/admin/vote-anomaly', icon: Activity },
         { title: t('districtIntegrity'), url: '/admin/district-integrity', icon: MapPin },

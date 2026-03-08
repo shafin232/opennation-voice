@@ -99,6 +99,7 @@ const App = () => (
                   <Route path="audit-logs" element={<AuditLogsPage />} />
                   <Route path="district-integrity" element={<DistrictIntegrityPage />} />
                   <Route path="user-management" element={<UserManagementPage />} />
+                  <Route path="analytics" element={<AnalyticsPage />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />
