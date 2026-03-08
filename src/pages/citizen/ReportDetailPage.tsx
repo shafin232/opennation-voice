@@ -10,7 +10,7 @@ import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import {
   ArrowLeft, MapPin, Clock, Shield, ThumbsUp, ThumbsDown, User2, Share2,
-  CheckCircle2, AlertCircle, Eye, MessageCircle, Send, X, Image as ImageIcon
+  CheckCircle2, AlertCircle, Eye, MessageCircle, Send, X, Image as ImageIcon, EyeOff
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
