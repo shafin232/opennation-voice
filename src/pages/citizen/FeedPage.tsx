@@ -18,7 +18,7 @@ import type { Report } from '@/types';
 import {
   ThumbsUp, ThumbsDown, MapPin, Clock, Newspaper, FileText,
   ArrowUpRight, Shield, CheckCircle2, AlertCircle, Eye, Plus, Users, Zap,
-  MessageCircle, Share2, MoreHorizontal, User2, Send, Image as ImageIcon, X
+  MessageCircle, Share2, MoreHorizontal, User2, Send, Image as ImageIcon, X, EyeOff
 } from 'lucide-react';
 
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
