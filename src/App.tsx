@@ -40,6 +40,7 @@ import VoteAnomalyPage from "@/pages/admin/VoteAnomalyPage";
 import EvidenceVaultPage from "@/pages/admin/EvidenceVaultPage";
 import AuditLogsPage from "@/pages/admin/AuditLogsPage";
 import DistrictIntegrityPage from "@/pages/admin/DistrictIntegrityPage";
+import UserManagementPage from "@/pages/admin/UserManagementPage";
 
 const queryClient = new QueryClient();
 
@@ -96,6 +97,7 @@ const App = () => (
                   <Route path="evidence-vault" element={<EvidenceVaultPage />} />
                   <Route path="audit-logs" element={<AuditLogsPage />} />
                   <Route path="district-integrity" element={<DistrictIntegrityPage />} />
+                  <Route path="user-management" element={<UserManagementPage />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />

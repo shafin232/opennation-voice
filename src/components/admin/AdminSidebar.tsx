@@ -1,6 +1,6 @@
 import {
   Shield, AlertTriangle, TrendingUp, CheckCircle, FileSearch, Unlock,
-  Activity, Archive, ScrollText, MapPin
+  Activity, Archive, ScrollText, MapPin, UserCog
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -47,6 +47,7 @@ export function AdminSidebar() {
       items: [
         { title: t('evidenceVault'), url: '/admin/evidence-vault', icon: Archive },
         { title: t('auditLogs'), url: '/admin/audit-logs', icon: ScrollText },
+        ...(isSuperadmin ? [{ title: 'ইউজার ম্যানেজমেন্ট', url: '/admin/user-management', icon: UserCog }] : []),
       ],
     },
   ];
