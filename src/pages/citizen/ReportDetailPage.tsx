@@ -135,7 +135,8 @@ export default function ReportDetailPage() {
 
   const cat = catConfig[report.category] || catConfig.other;
   const truthPct = Math.round((report.truth_probability ?? 0.5) * 100);
-  const isOwn = user?.id === report.author_id;
+  const isAnon = (report as any).is_anonymous === true;
+  const isOwn = !isAnon && user?.id === report.author_id;
 
   return (
     <div className="max-w-2xl mx-auto space-y-4">
