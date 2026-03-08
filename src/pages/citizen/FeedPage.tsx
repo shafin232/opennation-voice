@@ -96,13 +96,17 @@ function CommentSection({ reportId, commentCount }: { reportId: string; commentC
         .in('user_id', userIds);
       const profileMap = new Map((profiles ?? []).map((p: any) => [p.user_id, p]));
 
-      setComments(data.map((c: any) => ({
-        id: c.id,
-        body: c.body,
-        userName: profileMap.get(c.user_id) || 'Anonymous',
-        createdAt: c.created_at,
-        userId: c.user_id,
-      })));
+      setComments(data.map((c: any) => {
+        const p = profileMap.get(c.user_id);
+        return {
+          id: c.id,
+          body: c.body,
+          userName: p?.citizen_alias || p?.name || 'Anonymous',
+          userAlias: p?.citizen_alias || 'Citizen',
+          createdAt: c.created_at,
+          userId: c.user_id,
+        };
+      }));
     } else {
       setComments([]);
     }
