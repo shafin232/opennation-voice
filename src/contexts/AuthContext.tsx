@@ -24,7 +24,8 @@ async function fetchProfile(userId: string): Promise<User | null> {
 
   if (!profile) return null;
 
-  const role: UserRole = (roles?.[0]?.role as UserRole) ?? 'citizen';
+  const rolePriority: UserRole[] = ['superadmin', 'admin', 'moderator', 'citizen'];
+  const role: UserRole = rolePriority.find(r => roles?.some(ur => ur.role === r)) ?? 'citizen';
 
   return {
     id: userId,
