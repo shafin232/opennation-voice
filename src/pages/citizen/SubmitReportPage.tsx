@@ -35,6 +35,7 @@ export default function SubmitReportPage() {
   const [category, setCategory] = useState<ReportCategory>('other');
   const [district, setDistrict] = useState('');
   const [files, setFiles] = useState<File[]>([]);
+  const [isAnonymous, setIsAnonymous] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [dragOver, setDragOver] = useState(false);
 
