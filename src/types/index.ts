@@ -50,7 +50,9 @@ export interface Report {
   evidence: Evidence[];
   authorId: string;
   authorName: string;
+  authorAlias?: string;
   authorAvatar?: string;
+  isAnonymous?: boolean;
   supportCount: number;
   doubtCount: number;
   commentCount?: number;
