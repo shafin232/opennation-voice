@@ -46,6 +46,7 @@ export default function SubmitReportPage() {
         title, description, category,
         location: { district },
         evidence: files.length > 0 ? files : undefined,
+        isAnonymous,
       });
       setSubmitted(true);
       toast.success(t('reportSubmitted'));
