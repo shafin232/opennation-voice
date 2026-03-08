@@ -34,6 +34,7 @@ export default function ProfilePage() {
       });
   }, [user?.id]);
 
+  const navigate = useNavigate();
   if (!user) return null;
 
   const trustVal = liveScores?.trust ?? user.trustScore;
