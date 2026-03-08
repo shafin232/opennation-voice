@@ -47,6 +47,38 @@ export type Database = {
         }
         Relationships: []
       }
+      comments: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          report_id: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          report_id: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          report_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       community_repairs: {
         Row: {
           address: string | null
@@ -468,6 +500,7 @@ export type Database = {
           authenticity_score: number | null
           author_id: string
           category: string
+          comment_count: number
           created_at: string
           description: string
           district: string
@@ -488,6 +521,7 @@ export type Database = {
           authenticity_score?: number | null
           author_id: string
           category?: string
+          comment_count?: number
           created_at?: string
           description: string
           district?: string
@@ -508,6 +542,7 @@ export type Database = {
           authenticity_score?: number | null
           author_id?: string
           category?: string
+          comment_count?: number
           created_at?: string
           description?: string
           district?: string
