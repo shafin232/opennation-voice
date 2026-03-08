@@ -35,9 +35,18 @@ export default function CommunityRepairPage() {
   const fetchRequests = async () => {
     setLoading(true); setError(null);
     try {
-      const { data } = await apiClient.get<PaginatedResponse<RepairRequest>>('/community-repair');
-      setRequests(data.data ?? []);
-    } catch (err: any) { setError(err.response?.data?.message || 'Failed'); }
+      const { data, error: err } = await supabase
+        .from('community_repairs')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (err) throw err;
+      setRequests((data ?? []).map(r => ({
+        id: r.id, title: r.title, description: r.description,
+        location: { district: r.district, upazila: r.upazila, address: r.address, lat: r.lat, lng: r.lng },
+        category: r.category as any, status: r.status as any,
+        supportCount: r.support_count, createdAt: r.created_at,
+      })));
+    } catch (err: any) { setError(err.message || 'Failed'); }
     finally { setLoading(false); }
   };
 
