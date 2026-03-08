@@ -51,6 +51,9 @@ export interface Report {
   doubtCount: number;
   userVote?: 'support' | 'doubt' | null;
   status: 'pending' | 'verified' | 'hidden' | 'resolved';
+  truthProbability?: number;
+  authenticityScore?: number;
+  approvalDecision?: string;
   createdAt: string;
   updatedAt: string;
 }
