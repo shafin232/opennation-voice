@@ -19,11 +19,18 @@ export function useReports() {
 
       const { data, error: err, count } = await supabase
         .from('reports')
-        .select('*, profiles!reports_author_id_fkey(name)', { count: 'exact' })
+        .select('*', { count: 'exact' })
         .order('created_at', { ascending: false })
         .range(from, to);
 
       if (err) throw err;
+
+      // Fetch author names
+      const authorIds = [...new Set((data ?? []).map((r: any) => r.author_id))];
+      const { data: profilesData } = authorIds.length > 0
+        ? await supabase.from('profiles').select('user_id, name').in('user_id', authorIds)
+        : { data: [] };
+      const nameMap = new Map((profilesData ?? []).map((p: any) => [p.user_id, p.name]));
 
       const mapped: Report[] = (data ?? []).map((r: any) => ({
         id: r.id,
@@ -33,7 +40,7 @@ export function useReports() {
         location: { district: r.district, upazila: r.upazila, address: r.address, lat: r.lat, lng: r.lng },
         evidence: [],
         authorId: r.author_id,
-        authorName: r.profiles?.name || 'Anonymous',
+        authorName: nameMap.get(r.author_id) || 'Anonymous',
         supportCount: r.support_count,
         doubtCount: r.doubt_count,
         status: r.status,
