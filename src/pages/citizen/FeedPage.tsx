@@ -399,7 +399,7 @@ export default function FeedPage() {
               const ApprovalIcon = approval.icon;
               const truthPct = Math.round((report.truthProbability ?? 0.5) * 100);
               const cat = catConfig[report.category] || catConfig.other;
-              const isOwnPost = user?.id === report.authorId;
+              const isOwnPost = !report.isAnonymous && user?.id === report.authorId;
               const isVoting = votingId === report.id;
 
               return (
