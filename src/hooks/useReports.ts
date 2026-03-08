@@ -16,7 +16,7 @@ export function useReports() {
       const { data } = await apiClient.get<PaginatedResponse<Report>>('/reports', {
         params: { page: pageNum, limit: 20 },
       });
-      setReports(prev => reset ? data.data : [...prev, ...data.data]);
+      setReports(prev => reset ? (data.data ?? []) : [...prev, ...(data.data ?? [])]);
       setHasMore(data.hasMore);
       setPage(pageNum);
     } catch (err: any) {
