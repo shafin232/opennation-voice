@@ -40,6 +40,7 @@ import VoteAnomalyPage from "@/pages/admin/VoteAnomalyPage";
 import EvidenceVaultPage from "@/pages/admin/EvidenceVaultPage";
 import AuditLogsPage from "@/pages/admin/AuditLogsPage";
 import DistrictIntegrityPage from "@/pages/admin/DistrictIntegrityPage";
+import UserManagementPage from "@/pages/admin/UserManagementPage";
 
 const queryClient = new QueryClient();
 
