@@ -15,7 +15,7 @@ export function useAdmin() {
     setLoading(true); setError(null);
     try {
       const { data } = await apiClient.get<PaginatedResponse<ModerationItem>>('/admin/moderation');
-      setModerationQueue(data.data);
+      setModerationQueue(data.data ?? []);
     } catch (err: any) { setError(err.response?.data?.message || 'Failed'); }
     finally { setLoading(false); }
   }, []);
@@ -45,7 +45,7 @@ export function useAdmin() {
     setLoading(true); setError(null);
     try {
       const { data } = await apiClient.get<PaginatedResponse<TenderAnalysis>>('/admin/tenders');
-      setTenders(data.data);
+      setTenders(data.data ?? []);
     } catch (err: any) { setError(err.response?.data?.message || 'Failed'); }
     finally { setLoading(false); }
   }, []);
@@ -74,7 +74,7 @@ export function useAdmin() {
     setLoading(true); setError(null);
     try {
       const { data } = await apiClient.get<PaginatedResponse<IdentityUnlockRequest>>('/admin/identity-unlock');
-      setUnlockRequests(data.data);
+      setUnlockRequests(data.data ?? []);
     } catch (err: any) { setError(err.response?.data?.message || 'Failed'); }
     finally { setLoading(false); }
   }, []);
@@ -94,7 +94,7 @@ export function useAdmin() {
     setLoading(true); setError(null);
     try {
       const { data } = await apiClient.get<PaginatedResponse<VoteAnomaly>>('/admin/vote-anomalies');
-      setAnomalies(data.data);
+      setAnomalies(data.data ?? []);
     } catch (err: any) { setError(err.response?.data?.message || 'Failed'); }
     finally { setLoading(false); }
   }, []);
@@ -105,7 +105,7 @@ export function useAdmin() {
     setLoading(true); setError(null);
     try {
       const { data } = await apiClient.get<PaginatedResponse<AuditLog>>('/admin/audit-logs', { params: filters });
-      setAuditLogs(data.data);
+      setAuditLogs(data.data ?? []);
     } catch (err: any) { setError(err.response?.data?.message || 'Failed'); }
     finally { setLoading(false); }
   }, []);

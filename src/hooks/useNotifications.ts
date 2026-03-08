@@ -13,8 +13,9 @@ export function useNotifications() {
     setError(null);
     try {
       const { data } = await apiClient.get<PaginatedResponse<Notification>>('/notifications');
-      setNotifications(data.data);
-      setUnreadCount(data.data.filter(n => !n.read).length);
+      const items = data.data ?? [];
+      setNotifications(items);
+      setUnreadCount(items.filter(n => !n.read).length);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to fetch notifications');
     } finally {
