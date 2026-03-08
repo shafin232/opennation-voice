@@ -443,11 +443,11 @@ const Index = () => {
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
             <div className="relative z-10">
               <motion.div
-                className="h-16 w-16 rounded-2xl gradient-neon flex items-center justify-center mx-auto mb-8 glow-neon"
+                className="mx-auto mb-8"
                 animate={{ rotate: [0, 5, -5, 0] }}
                 transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
               >
-                <Shield className="h-8 w-8 text-primary-foreground" />
+                <img src={logoImg} alt="OpenNation" className="h-16 object-contain mx-auto" />
               </motion.div>
               <h2 className="text-3xl md:text-5xl font-bold tracking-tighter mb-4">
                 Join the movement
