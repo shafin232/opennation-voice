@@ -30,6 +30,13 @@ export function useAdmin() {
   const approveReport = useCallback(async (reportId: string, decision: 'approved' | 'rejected') => {
     setLoading(true); setError(null);
     try {
+      // Get report author before updating
+      const { data: report } = await supabase
+        .from('reports')
+        .select('author_id')
+        .eq('id', reportId)
+        .single();
+
       const newStatus = decision === 'approved' ? 'verified' : 'rejected';
       const { error: err } = await supabase
         .from('reports')
@@ -38,6 +45,13 @@ export function useAdmin() {
 
       if (err) throw err;
       setPendingReports(prev => prev.filter(r => r.id !== reportId));
+
+      // --- Algorithm: Recompute truth & author reputation after admin decision (non-blocking) ---
+      console.log('[Admin] Triggering algorithms after', decision, 'for report', reportId);
+      computeTruth(reportId).catch(() => {});
+      if (report?.author_id) {
+        computeReputation(report.author_id).catch(() => {});
+      }
     } catch (err: any) { setError(err.message || 'Failed'); throw err; }
     finally { setLoading(false); }
   }, []);
