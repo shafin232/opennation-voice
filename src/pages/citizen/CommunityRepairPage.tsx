@@ -13,8 +13,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { Plus, Wrench, MapPin, ThumbsUp, HardHat } from 'lucide-react';
-import apiClient from '@/lib/apiClient';
-import type { RepairRequest, PaginatedResponse, ApiResponse } from '@/types';
+import { supabase } from '@/integrations/supabase/client';
+import type { RepairRequest } from '@/types';
 
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
 const slamIn = {
