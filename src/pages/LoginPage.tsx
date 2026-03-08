@@ -6,9 +6,21 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { Shield, LogIn, UserPlus, ArrowRight, Fingerprint, Eye, EyeOff } from 'lucide-react';
-import logoImg from '@/assets/logo.png';
+
+const BD_DISTRICTS = [
+  'Bagerhat','Bandarban','Barguna','Barisal','Bhola','Bogra','Brahmanbaria','Chandpur',
+  'Chapainawabganj','Chittagong','Comilla','Cox\'s Bazar','Dhaka','Dinajpur','Faridpur',
+  'Feni','Gaibandha','Gazipur','Gopalganj','Habiganj','Jamalpur','Jessore','Jhalokati',
+  'Jhenaidah','Joypurhat','Khagrachari','Khulna','Kishoreganj','Kurigram','Kushtia',
+  'Lakshmipur','Lalmonirhat','Madaripur','Magura','Manikganj','Meherpur','Moulvibazar',
+  'Munshiganj','Mymensingh','Naogaon','Narail','Narayanganj','Narsingdi','Natore',
+  'Nawabganj','Netrokona','Nilphamari','Noakhali','Pabna','Panchagarh','Patuakhali',
+  'Pirojpur','Rajbari','Rajshahi','Rangamati','Rangpur','Satkhira','Shariatpur',
+  'Sherpur','Sirajganj','Sunamganj','Sylhet','Tangail','Thakurgaon',
+];
 
 export default function LoginPage() {
   const { signIn, signUp } = useAuth();
@@ -19,8 +31,18 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [district, setDistrict] = useState('');
+  const [nid, setNid] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const hashNid = async (raw: string): Promise<string> => {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(raw.trim());
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,8 +53,24 @@ export default function LoginPage() {
         toast.success('Login successful');
         navigate('/app');
       } else {
-        await signUp(email, password, { name });
-        toast.success('Account created! Check your email to verify.');
+        // Validate BD phone
+        const cleanPhone = phone.replace(/\s/g, '');
+        if (!/^(\+?880|0)1[3-9]\d{8}$/.test(cleanPhone)) {
+          toast.error('সঠিক বাংলাদেশি ফোন নম্বর দিন (e.g. 01712345678)');
+          setLoading(false);
+          return;
+        }
+        // Validate NID (10 or 17 digits)
+        const cleanNid = nid.trim();
+        if (cleanNid && !/^\d{10}$|^\d{17}$/.test(cleanNid)) {
+          toast.error('NID নম্বর ১০ অথবা ১৭ ডিজিটের হতে হবে');
+          setLoading(false);
+          return;
+        }
+
+        const nidHash = cleanNid ? await hashNid(cleanNid) : '';
+        await signUp(email, password, { name, district, phone: cleanPhone, nid_hash: nidHash });
+        toast.success('অ্যাকাউন্ট তৈরি হয়েছে! ইমেইল ভেরিফাই করুন।');
       }
     } catch (err: any) {
       toast.error(err.message || 'Authentication failed');
@@ -41,11 +79,12 @@ export default function LoginPage() {
     }
   };
 
+  const inputClass = "h-12 bg-muted/20 border-border/50 rounded-xl text-sm focus:border-primary/50 focus:ring-primary/20 transition-all";
+
   return (
     <div className="min-h-screen flex mesh-cinematic grain relative overflow-hidden">
       {/* Left — Branding */}
       <div className="hidden lg:flex flex-1 items-center justify-center relative">
-        {/* Decorative orbs */}
         <motion.div
           className="absolute w-[500px] h-[500px] rounded-full bg-primary/5 blur-3xl"
           animate={{ x: [0, 30, 0], y: [0, -20, 0] }}
@@ -63,13 +102,7 @@ export default function LoginPage() {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="relative z-10 max-w-md text-center"
         >
-          <motion.div
-            className="mx-auto mb-8"
-            animate={{ rotate: [0, 5, -5, 0] }}
-            transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-          >
-            <img src={logoImg} alt="OpenNation" className="h-20 object-contain mx-auto" />
-          </motion.div>
+          <h1 className="text-4xl font-bold tracking-tight text-foreground mb-4">OpenNation</h1>
           <p className="text-lg text-muted-foreground leading-relaxed">
             AI-powered civic intelligence platform for national transparency & accountability
           </p>
@@ -98,9 +131,9 @@ export default function LoginPage() {
           transition={{ duration: 0.6 }}
           className="w-full max-w-sm"
         >
-          {/* Mobile logo */}
+          {/* Mobile branding */}
           <div className="lg:hidden text-center mb-10">
-            <img src={logoImg} alt="OpenNation" className="h-14 object-contain mx-auto mb-4" />
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">OpenNation</h1>
           </div>
 
           <div className="mb-8">
@@ -112,21 +145,65 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {mode === 'signup' && (
-              <div className="space-y-2">
-                <Label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Full Name</Label>
-                <Input
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  placeholder="Your name"
-                  required
-                  className="h-12 bg-muted/20 border-border/50 rounded-xl text-sm focus:border-primary/50 focus:ring-primary/20 transition-all"
-                />
-              </div>
+              <>
+                <div className="space-y-1.5">
+                  <Label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Full Name</Label>
+                  <Input
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    placeholder="আপনার পুরো নাম"
+                    required
+                    maxLength={100}
+                    className={inputClass}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Phone Number</Label>
+                  <Input
+                    type="tel"
+                    value={phone}
+                    onChange={e => setPhone(e.target.value)}
+                    placeholder="01XXXXXXXXX"
+                    required
+                    maxLength={15}
+                    className={inputClass}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">District (জেলা)</Label>
+                  <Select value={district} onValueChange={setDistrict} required>
+                    <SelectTrigger className={inputClass}>
+                      <SelectValue placeholder="জেলা নির্বাচন করুন" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-60">
+                      {BD_DISTRICTS.map(d => (
+                        <SelectItem key={d} value={d}>{d}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+                    NID Number <span className="text-muted-foreground/50 normal-case tracking-normal">(ঐচ্ছিক)</span>
+                  </Label>
+                  <Input
+                    value={nid}
+                    onChange={e => setNid(e.target.value.replace(/\D/g, ''))}
+                    placeholder="১০ অথবা ১৭ ডিজিট"
+                    maxLength={17}
+                    className={inputClass}
+                  />
+                  <p className="text-[10px] text-muted-foreground/50">🔒 SHA-256 হ্যাশ করে সংরক্ষণ করা হবে</p>
+                </div>
+              </>
             )}
 
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <Label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Email</Label>
               <Input
                 type="email"
@@ -134,11 +211,12 @@ export default function LoginPage() {
                 onChange={e => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 required
-                className="h-12 bg-muted/20 border-border/50 rounded-xl text-sm focus:border-primary/50 focus:ring-primary/20 transition-all"
+                maxLength={255}
+                className={inputClass}
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <Label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Password</Label>
               <div className="relative">
                 <Input
@@ -148,7 +226,7 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   required
                   minLength={6}
-                  className="h-12 bg-muted/20 border-border/50 rounded-xl text-sm pr-10 focus:border-primary/50 focus:ring-primary/20 transition-all"
+                  className={`${inputClass} pr-10`}
                 />
                 <button
                   type="button"
@@ -162,7 +240,7 @@ export default function LoginPage() {
 
             <Button
               type="submit"
-              disabled={loading}
+              disabled={loading || (mode === 'signup' && !district)}
               className="w-full h-12 rounded-xl text-sm font-semibold gap-2 bg-primary text-primary-foreground btn-glow glow-neon"
             >
               {loading ? (
