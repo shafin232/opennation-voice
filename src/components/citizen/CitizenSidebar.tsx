@@ -1,6 +1,6 @@
 import {
   Newspaper, FileText, Building2, FileSearch, Hospital, Wrench,
-  BarChart3, Bell, User, Settings, Shield, Zap
+  BarChart3, Bell, User, Settings, Shield, Zap, TrendingUp
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useLanguage } from '@/contexts/LanguageContext';
