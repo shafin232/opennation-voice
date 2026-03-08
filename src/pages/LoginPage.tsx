@@ -63,15 +63,12 @@ export default function LoginPage() {
           className="relative z-10 max-w-md text-center"
         >
           <motion.div
-            className="h-20 w-20 rounded-3xl gradient-neon flex items-center justify-center mx-auto mb-8 glow-neon"
+            className="mx-auto mb-8"
             animate={{ rotate: [0, 5, -5, 0] }}
             transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
           >
-            <Shield className="h-10 w-10 text-primary-foreground" />
+            <img src={logoImg} alt="OpenNation" className="h-20 object-contain mx-auto" />
           </motion.div>
-          <h1 className="text-5xl font-bold tracking-tighter mb-4">
-            <span className="gradient-text-neon">Open</span>Nation
-          </h1>
           <p className="text-lg text-muted-foreground leading-relaxed">
             AI-powered civic intelligence platform for national transparency & accountability
           </p>
