@@ -44,6 +44,7 @@ import AuditLogsPage from "@/pages/admin/AuditLogsPage";
 import DistrictIntegrityPage from "@/pages/admin/DistrictIntegrityPage";
 import UserManagementPage from "@/pages/admin/UserManagementPage";
 import AnalyticsPage from "@/pages/admin/AnalyticsPage";
+import HospitalManagementPage from "@/pages/admin/HospitalManagementPage";
 
 const queryClient = new QueryClient();
 
