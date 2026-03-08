@@ -9,6 +9,38 @@ export function useAdmin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Pending Reports (awaiting admin approval)
+  const [pendingReports, setPendingReports] = useState<any[]>([]);
+  const fetchPendingReports = useCallback(async () => {
+    setLoading(true); setError(null);
+    try {
+      const { data, error: err } = await supabase
+        .from('reports')
+        .select('*')
+        .eq('approval_decision', 'pending')
+        .order('created_at', { ascending: false });
+
+      if (err) throw err;
+      setPendingReports(data ?? []);
+    } catch (err: any) { setError(err.message || 'Failed'); }
+    finally { setLoading(false); }
+  }, []);
+
+  const approveReport = useCallback(async (reportId: string, decision: 'approved' | 'rejected') => {
+    setLoading(true); setError(null);
+    try {
+      const newStatus = decision === 'approved' ? 'verified' : 'rejected';
+      const { error: err } = await supabase
+        .from('reports')
+        .update({ approval_decision: decision, status: newStatus })
+        .eq('id', reportId);
+
+      if (err) throw err;
+      setPendingReports(prev => prev.filter(r => r.id !== reportId));
+    } catch (err: any) { setError(err.message || 'Failed'); throw err; }
+    finally { setLoading(false); }
+  }, []);
+
   // Moderation
   const [moderationQueue, setModerationQueue] = useState<ModerationItem[]>([]);
   const fetchModerationQueue = useCallback(async () => {
@@ -235,6 +267,7 @@ export function useAdmin() {
 
   return {
     loading, error,
+    pendingReports, fetchPendingReports, approveReport,
     moderationQueue, fetchModerationQueue, moderateReport,
     toggleCrisisMode,
     tenders, fetchTenders,
