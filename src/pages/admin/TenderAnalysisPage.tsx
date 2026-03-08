@@ -1,18 +1,47 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAdmin } from '@/hooks/useAdmin';
+import { useAlgorithms } from '@/hooks/useAlgorithms';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LoadingSkeleton } from '@/components/shared/LoadingSkeleton';
 import { ErrorBanner } from '@/components/shared/ErrorBanner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { TrendingUp, AlertTriangle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { TrendingUp, AlertTriangle, BarChart3, Shield, Target } from 'lucide-react';
 
 export default function TenderAnalysisPage() {
   const { tenders, loading, error, fetchTenders } = useAdmin();
+  const { winRateAnomaly, bidRotation, hhiIndex, executionRisk } = useAlgorithms();
   const { t } = useLanguage();
+  const [bidRotationData, setBidRotationData] = useState<any>(null);
+  const [hhiData, setHhiData] = useState<any>(null);
+  const [analyzing, setAnalyzing] = useState(false);
 
   useEffect(() => { fetchTenders(); }, [fetchTenders]);
+
+  const runFullAnalysis = async () => {
+    setAnalyzing(true);
+    try {
+      const [brResult, hhiResult] = await Promise.all([
+        bidRotation().catch(() => null),
+        hhiIndex().catch(() => null),
+      ]);
+      setBidRotationData(brResult);
+      setHhiData(hhiResult);
+
+      // Run execution risk for each tender
+      for (const tender of tenders) {
+        await executionRisk(tender.id).catch(() => {});
+      }
+      // Refresh tenders to get updated risk scores
+      await fetchTenders();
+    } catch {
+      // Non-blocking
+    } finally {
+      setAnalyzing(false);
+    }
+  };
 
   const riskConfig: Record<string, { className: string; label: string }> = {
     low_risk: { className: 'bg-success/10 text-success border-0', label: 'নিম্ন ঝুঁকি' },
@@ -23,17 +52,83 @@ export default function TenderAnalysisPage() {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      <div className="flex items-center gap-3">
-        <div className="h-10 w-10 rounded-xl bg-warning/10 flex items-center justify-center">
-          <TrendingUp className="h-5 w-5 text-warning" />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl bg-warning/10 flex items-center justify-center">
+            <TrendingUp className="h-5 w-5 text-warning" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground tracking-tight">{t('tenderAnalysis')}</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">টেন্ডার ঝুঁকি বিশ্লেষণ</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">{t('tenderAnalysis')}</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">টেন্ডার ঝুঁকি বিশ্লেষণ</p>
-        </div>
+        <Button
+          onClick={runFullAnalysis}
+          disabled={analyzing || loading}
+          size="sm"
+          className="gap-1.5"
+        >
+          <BarChart3 className="h-3.5 w-3.5" />
+          {analyzing ? 'বিশ্লেষণ চলছে...' : 'AI বিশ্লেষণ চালান'}
+        </Button>
       </div>
 
       {error && <ErrorBanner message={error} onRetry={fetchTenders} />}
+
+      {/* Bid Rotation & HHI Analysis Cards */}
+      {(bidRotationData || hhiData) && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {bidRotationData?.departments?.length > 0 && (
+            <Card className="border-border/60">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Target className="h-4 w-4 text-warning" />
+                  বিড রোটেশন / কার্টেল ডিটেকশন
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {bidRotationData.departments.map((dept: any) => (
+                  <div key={dept.department} className="p-2.5 rounded-lg bg-muted/50 space-y-1">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium">{dept.department}</span>
+                      <Badge className={`text-[10px] ${dept.risk === 'high' ? 'bg-destructive/10 text-destructive border-0' : dept.risk === 'medium' ? 'bg-warning/10 text-warning border-0' : 'bg-success/10 text-success border-0'}`}>
+                        {dept.risk === 'high' ? 'উচ্চ ঝুঁকি' : dept.risk === 'medium' ? 'মাঝারি' : 'স্বাভাবিক'}
+                      </Badge>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">
+                      প্রধান ঠিকাদার: {dept.dominant_contractors.join(', ')} | ঘনত্ব: {(dept.consistency * 100).toFixed(0)}%
+                    </p>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+
+          {hhiData?.departments?.length > 0 && (
+            <Card className="border-border/60">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-primary" />
+                  HHI সূচক (পক্ষপাতিত্ব বিশ্লেষণ)
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {hhiData.departments.map((dept: any) => (
+                  <div key={dept.department} className="p-2.5 rounded-lg bg-muted/50 space-y-1">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium">{dept.department}</span>
+                      <Badge className={`text-[10px] ${dept.risk === 'critical' ? 'bg-destructive text-destructive-foreground' : dept.risk === 'high' ? 'bg-destructive/10 text-destructive border-0' : dept.risk === 'moderate' ? 'bg-warning/10 text-warning border-0' : 'bg-success/10 text-success border-0'}`}>
+                        HHI: {dept.hhi}
+                      </Badge>
+                    </div>
+                    <Progress value={Math.min(100, dept.hhi / 100)} className={`h-1.5 ${dept.hhi > 5000 ? '[&>div]:bg-destructive' : dept.hhi > 2500 ? '[&>div]:bg-warning' : '[&>div]:bg-success'}`} />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
 
       {loading ? <LoadingSkeleton rows={4} /> : tenders.length === 0 ? (
         <div className="text-center py-16">
