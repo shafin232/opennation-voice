@@ -50,6 +50,17 @@ export function useReports() {
         }
       }
 
+      // Fetch evidence for these reports
+      const reportIds = (data ?? []).map((r: any) => r.id);
+      const { data: evidenceData } = reportIds.length > 0
+        ? await supabase.from('evidence').select('*').in('report_id', reportIds)
+        : { data: [] };
+      const evidenceMap = new Map<string, any[]>();
+      for (const e of evidenceData ?? []) {
+        if (!evidenceMap.has(e.report_id)) evidenceMap.set(e.report_id, []);
+        evidenceMap.get(e.report_id)!.push({ id: e.id, type: e.type, url: e.url, blurred: e.blurred });
+      }
+
       const mapped: Report[] = (data ?? []).map((r: any) => {
         const profile = profileMap.get(r.author_id);
         return {
@@ -58,12 +69,13 @@ export function useReports() {
           description: r.description,
           category: r.category,
           location: { district: r.district, upazila: r.upazila, address: r.address, lat: r.lat, lng: r.lng },
-          evidence: [],
+          evidence: evidenceMap.get(r.id) || [],
           authorId: r.author_id,
           authorName: profile?.name || 'Anonymous',
           authorAvatar: profile?.avatar_url || undefined,
           supportCount: r.support_count,
           doubtCount: r.doubt_count,
+          commentCount: r.comment_count ?? 0,
           userVote: userVotesMap.get(r.id) || null,
           status: r.status,
           createdAt: r.created_at,
