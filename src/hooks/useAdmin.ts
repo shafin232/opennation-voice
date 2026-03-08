@@ -94,7 +94,7 @@ export function useAdmin() {
     setLoading(true); setError(null);
     try {
       const { data } = await apiClient.get<PaginatedResponse<VoteAnomaly>>('/admin/vote-anomalies');
-      setAnomalies(data.data);
+      setAnomalies(data.data ?? []);
     } catch (err: any) { setError(err.response?.data?.message || 'Failed'); }
     finally { setLoading(false); }
   }, []);
