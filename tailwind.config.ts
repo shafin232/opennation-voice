@@ -14,9 +14,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['Space Grotesk', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
         bengali: ['Hind Siliguri', 'Noto Sans Bengali', 'sans-serif'],
-        'mono-data': ['Roboto Mono', 'ui-monospace', 'monospace'],
+        'mono-data': ['JetBrains Mono', 'Roboto Mono', 'ui-monospace', 'monospace'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -60,9 +60,8 @@ export default {
           DEFAULT: "hsl(var(--success))",
           foreground: "hsl(var(--success-foreground))",
         },
-        "deep-slate": "hsl(var(--deep-slate))",
-        teal: "hsl(var(--teal))",
-        amber: "hsl(var(--amber))",
+        neon: "hsl(var(--neon))",
+        "neon-amber": "hsl(var(--neon-amber))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -78,6 +77,8 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        "2xl": "1rem",
+        "3xl": "1.25rem",
       },
       keyframes: {
         "accordion-down": {
@@ -89,9 +90,13 @@ export default {
           to: { height: "0" },
         },
         "slam-in": {
-          "0%": { transform: "scale(0.9)", opacity: "0" },
-          "70%": { transform: "scale(1.02)", opacity: "1" },
-          "100%": { transform: "scale(1)", opacity: "1" },
+          "0%": { transform: "scale(0.88) translateY(8px)", opacity: "0" },
+          "70%": { transform: "scale(1.01)", opacity: "1" },
+          "100%": { transform: "scale(1) translateY(0)", opacity: "1" },
+        },
+        "fade-up": {
+          "0%": { opacity: "0", transform: "translateY(16px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
         },
         pulse: {
           "0%, 100%": { opacity: "1" },
@@ -102,6 +107,7 @@ export default {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "slam-in": "slam-in 0.5s cubic-bezier(0.22, 1, 0.36, 1)",
+        "fade-up": "fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
         pulse: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
       },
     },

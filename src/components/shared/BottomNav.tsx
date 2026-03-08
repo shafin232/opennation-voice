@@ -26,25 +26,27 @@ export function BottomNav({ variant = 'citizen' }: BottomNavProps) {
   const items = variant === 'citizen' ? citizenItems : adminItems;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden glass-nav border-t border-[hsl(var(--border-subtle))]">
-      <div className="flex items-center justify-around h-16 px-2">
+    <nav className="fixed bottom-4 left-4 right-4 z-50 md:hidden">
+      <div className="glass-panel rounded-2xl flex items-center justify-around h-16 px-2 mx-auto max-w-md">
         {items.map(item => (
           <NavLink
             key={item.to}
             to={item.to}
             end={item.to === '/app' || item.to === '/admin'}
             className={({ isActive }) =>
-              `flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all duration-200 ${
-                isActive ? 'text-primary' : 'text-muted-foreground/60'
+              `flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all duration-300 ${
+                isActive ? 'text-primary' : 'text-muted-foreground/50'
               }`
             }
           >
             {({ isActive }) => (
               <>
-                <div className={`h-8 w-8 rounded-xl flex items-center justify-center transition-all ${isActive ? 'bg-primary/10 shadow-glow-teal' : ''}`}>
-                  <item.icon className="h-4 w-4" />
+                <div className={`h-9 w-9 rounded-xl flex items-center justify-center transition-all duration-300 ${
+                  isActive ? 'bg-primary/10 glow-neon' : ''
+                }`}>
+                  <item.icon className={`h-4 w-4 transition-all ${isActive ? 'scale-110' : ''}`} />
                 </div>
-                <span className="text-[9px] font-medium font-bengali">{item.label}</span>
+                <span className="text-[9px] font-semibold tracking-wide">{item.label}</span>
               </>
             )}
           </NavLink>
