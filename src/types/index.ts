@@ -96,6 +96,7 @@ export interface ReportSubmission {
   category: ReportCategory;
   location: Location;
   evidence?: File[];
+  isAnonymous?: boolean;
 }
 
 // Voting
