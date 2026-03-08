@@ -38,7 +38,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         .select('*')
         .order('activated_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
       if (data) {
         setCrisisMode({
           active: data.active,
