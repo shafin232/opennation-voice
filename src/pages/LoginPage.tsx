@@ -100,12 +100,7 @@ export default function LoginPage() {
         >
           {/* Mobile logo */}
           <div className="lg:hidden text-center mb-10">
-            <div className="h-14 w-14 rounded-2xl gradient-neon flex items-center justify-center mx-auto mb-4 glow-neon">
-              <Shield className="h-7 w-7 text-primary-foreground" />
-            </div>
-            <h1 className="text-2xl font-bold tracking-tight">
-              <span className="gradient-text-neon">Open</span>Nation
-            </h1>
+            <img src={logoImg} alt="OpenNation" className="h-14 object-contain mx-auto mb-4" />
           </div>
 
           <div className="mb-8">
