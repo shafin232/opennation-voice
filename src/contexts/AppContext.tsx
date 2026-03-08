@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
-import apiClient from '@/lib/apiClient';
+import { supabase } from '@/integrations/supabase/client';
 import type { CrisisMode } from '@/types';
 
 type Theme = 'light' | 'dark';
@@ -27,25 +27,34 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  // Listen for 403 crisis-mode events from apiClient
-  useEffect(() => {
-    const handler = () => setCrisisMode({ active: true });
-    window.addEventListener('crisis-mode-notice', handler);
-    return () => window.removeEventListener('crisis-mode-notice', handler);
-  }, []);
-
   const toggleTheme = useCallback(() => {
     setTheme(t => (t === 'light' ? 'dark' : 'light'));
   }, []);
 
   const refreshCrisisMode = useCallback(async () => {
     try {
-      const { data } = await apiClient.get<CrisisMode>('/admin/crisis-mode');
-      setCrisisMode(data);
+      const { data } = await supabase
+        .from('crisis_mode')
+        .select('*')
+        .order('activated_at', { ascending: false })
+        .limit(1)
+        .single();
+      if (data) {
+        setCrisisMode({
+          active: data.active,
+          activatedBy: data.activated_by ?? undefined,
+          activatedAt: data.activated_at ?? undefined,
+          reason: data.reason ?? undefined,
+        });
+      }
     } catch {
-      // ignore — crisis mode check is optional
+      // ignore
     }
   }, []);
+
+  useEffect(() => {
+    refreshCrisisMode();
+  }, [refreshCrisisMode]);
 
   return (
     <AppContext.Provider value={{ theme, toggleTheme, crisisMode, refreshCrisisMode }}>

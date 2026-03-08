@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
-import apiClient from '@/lib/apiClient';
-import type { Hospital, PaginatedResponse } from '@/types';
+import { supabase } from '@/integrations/supabase/client';
+import type { Hospital } from '@/types';
 
 export function useHospitals() {
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
@@ -11,12 +11,25 @@ export function useHospitals() {
     setLoading(true);
     setError(null);
     try {
-      const { data } = await apiClient.get<PaginatedResponse<Hospital>>('/hospitals', {
-        params: district ? { district } : undefined,
-      });
-      setHospitals(data.data ?? []);
+      let query = supabase.from('hospitals').select('*').order('name');
+      if (district) query = query.eq('district', district);
+
+      const { data, error: err } = await query;
+      if (err) throw err;
+
+      setHospitals((data ?? []).map(h => ({
+        id: h.id,
+        name: h.name,
+        district: h.district,
+        type: h.type as any,
+        totalBeds: h.total_beds,
+        availableBeds: h.available_beds,
+        rating: Number(h.rating),
+        services: h.services,
+        lastUpdated: h.last_updated,
+      })));
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to fetch hospitals');
+      setError(err.message || 'Failed to fetch hospitals');
     } finally {
       setLoading(false);
     }
