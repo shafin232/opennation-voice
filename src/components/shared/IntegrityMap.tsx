@@ -26,9 +26,9 @@ const severityConfig = {
 
 export function IntegrityMap() {
   return (
-    <div className="relative w-full h-[400px] rounded-2xl overflow-hidden glass-strong">
-      {/* Grid background */}
-      <div className="absolute inset-0 opacity-[0.06]" style={{
+    <div className="relative w-full h-[400px] rounded-2xl overflow-hidden glass-card">
+      {/* Grid */}
+      <div className="absolute inset-0 opacity-[0.04]" style={{
         backgroundImage: `
           linear-gradient(hsl(var(--foreground)) 1px, transparent 1px),
           linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)
@@ -36,11 +36,14 @@ export function IntegrityMap() {
         backgroundSize: '40px 40px',
       }} />
 
-      {/* Organic map shapes */}
-      <svg className="absolute inset-0 w-full h-full opacity-[0.08]" viewBox="0 0 400 400" preserveAspectRatio="none">
+      {/* Map outline */}
+      <svg className="absolute inset-0 w-full h-full opacity-[0.06]" viewBox="0 0 400 400" preserveAspectRatio="none">
         <path d="M80,60 Q120,30 180,50 T280,80 Q320,100 300,160 T260,250 Q240,300 180,320 T80,280 Q40,240 50,180 T80,60Z" fill="none" stroke="hsl(var(--foreground))" strokeWidth="1" />
-        <path d="M120,100 Q160,80 200,100 T260,130 Q280,150 270,200 T230,260 Q200,280 160,270 T110,230 Q90,200 100,160 T120,100Z" fill="hsl(var(--teal))" fillOpacity="0.05" stroke="hsl(var(--teal))" strokeWidth="0.5" />
+        <path d="M120,100 Q160,80 200,100 T260,130 Q280,150 270,200 T230,260 Q200,280 160,270 T110,230 Q90,200 100,160 T120,100Z" fill="hsl(var(--teal))" fillOpacity="0.04" stroke="hsl(var(--teal))" strokeWidth="0.5" />
       </svg>
+
+      {/* Ambient glow */}
+      <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-primary/5 blur-3xl" />
 
       {/* Heat clusters */}
       {clusters.map((cluster, i) => (
@@ -48,16 +51,17 @@ export function IntegrityMap() {
           key={i}
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.3 + i * 0.1, type: 'spring', stiffness: 200 }}
+          transition={{ delay: 0.4 + i * 0.08, type: 'spring' as const, stiffness: 300, damping: 20 }}
           className="absolute flex flex-col items-center gap-1 group cursor-pointer"
           style={{ left: cluster.x, top: cluster.y, transform: 'translate(-50%, -50%)' }}
+          whileHover={{ scale: 1.2 }}
         >
           <div
-            className={`rounded-full ${severityConfig[cluster.severity]} opacity-60 group-hover:opacity-90 transition-opacity`}
+            className={`rounded-full ${severityConfig[cluster.severity]} opacity-50 group-hover:opacity-80 transition-opacity duration-300`}
             style={{ width: cluster.size, height: cluster.size }}
           />
           {cluster.label && (
-            <span className="text-[10px] font-bengali text-foreground/70 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+            <span className="text-[9px] font-bengali text-foreground/60 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
               {cluster.label}
             </span>
           )}
@@ -65,10 +69,16 @@ export function IntegrityMap() {
       ))}
 
       {/* Legend */}
-      <div className="absolute bottom-4 left-4 flex gap-4 text-[10px] text-muted-foreground">
-        <span className="flex items-center gap-1.5"><div className="h-2.5 w-2.5 rounded-full bg-primary" />স্বচ্ছ</span>
-        <span className="flex items-center gap-1.5"><div className="h-2.5 w-2.5 rounded-full bg-accent" />মাঝারি</span>
-        <span className="flex items-center gap-1.5"><div className="h-2.5 w-2.5 rounded-full bg-destructive" />সংকটপূর্ণ</span>
+      <div className="absolute bottom-4 left-4 flex gap-4 text-[9px] text-muted-foreground/60">
+        <span className="flex items-center gap-1.5"><div className="h-2 w-2 rounded-full bg-primary" />স্বচ্ছ</span>
+        <span className="flex items-center gap-1.5"><div className="h-2 w-2 rounded-full bg-accent" />মাঝারি</span>
+        <span className="flex items-center gap-1.5"><div className="h-2 w-2 rounded-full bg-destructive" />সংকটপূর্ণ</span>
+      </div>
+
+      {/* Title overlay */}
+      <div className="absolute top-4 left-4">
+        <h3 className="text-sm font-bengali font-semibold text-foreground/80">সততা মানচিত্র</h3>
+        <p className="text-[10px] text-muted-foreground/50">Integrity Heatmap</p>
       </div>
     </div>
   );
