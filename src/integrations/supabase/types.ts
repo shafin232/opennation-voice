@@ -448,8 +448,48 @@ export type Database = {
           },
         ]
       }
+      project_votes: {
+        Row: {
+          created_at: string
+          id: string
+          project_id: string
+          user_id: string
+          vote_type: string
+          voter_district: string
+          weight: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          project_id: string
+          user_id: string
+          vote_type: string
+          voter_district?: string
+          weight?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          project_id?: string
+          user_id?: string
+          vote_type?: string
+          voter_district?: string
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_votes_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
+          affected_population: number
+          approval_percent: number
           approval_status: string
           budget: number
           created_at: string
@@ -458,14 +498,22 @@ export type Database = {
           district: string
           end_date: string | null
           id: string
+          impact_displacement: number
+          impact_environment: string
+          impact_income: string
           is_frozen: boolean
+          modify_count: number
+          need_count: number
           opinion_count: number
+          reject_count: number
           start_date: string | null
           status: string
           title: string
           updated_at: string
         }
         Insert: {
+          affected_population?: number
+          approval_percent?: number
           approval_status?: string
           budget?: number
           created_at?: string
@@ -474,14 +522,22 @@ export type Database = {
           district?: string
           end_date?: string | null
           id?: string
+          impact_displacement?: number
+          impact_environment?: string
+          impact_income?: string
           is_frozen?: boolean
+          modify_count?: number
+          need_count?: number
           opinion_count?: number
+          reject_count?: number
           start_date?: string | null
           status?: string
           title: string
           updated_at?: string
         }
         Update: {
+          affected_population?: number
+          approval_percent?: number
           approval_status?: string
           budget?: number
           created_at?: string
@@ -490,8 +546,14 @@ export type Database = {
           district?: string
           end_date?: string | null
           id?: string
+          impact_displacement?: number
+          impact_environment?: string
+          impact_income?: string
           is_frozen?: boolean
+          modify_count?: number
+          need_count?: number
           opinion_count?: number
+          reject_count?: number
           start_date?: string | null
           status?: string
           title?: string
