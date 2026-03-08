@@ -55,11 +55,20 @@ export default function CommunityRepairPage() {
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
-      await apiClient.post<ApiResponse<RepairRequest>>('/community-repair', {
-        title: form.title, description: form.description,
-        location: { district: form.district },
-        category: form.category,
-      });
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { error: err } = await supabase
+        .from('community_repairs')
+        .insert({
+          title: form.title,
+          description: form.description,
+          district: form.district,
+          category: form.category,
+          author_id: user.id,
+        });
+
+      if (err) throw err;
       toast.success(t('success'));
       setOpen(false);
       setForm({ title: '', description: '', district: '', category: 'road' });
