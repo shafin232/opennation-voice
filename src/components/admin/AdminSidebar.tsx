@@ -1,6 +1,6 @@
 import {
   Shield, AlertTriangle, TrendingUp, CheckCircle, FileSearch, Unlock,
-  Activity, Archive, ScrollText, MapPin, UserCog
+  Activity, Archive, ScrollText, MapPin, UserCog, BarChart3
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -29,6 +29,7 @@ export function AdminSidebar() {
     {
       label: 'বিশ্লেষণ',
       items: [
+        { title: 'অ্যানালিটিক্স', url: '/admin/analytics', icon: BarChart3 },
         { title: t('tenderAnalysis'), url: '/admin/tenders', icon: TrendingUp },
         { title: t('voteAnomaly'), url: '/admin/vote-anomaly', icon: Activity },
         { title: t('districtIntegrity'), url: '/admin/district-integrity', icon: MapPin },

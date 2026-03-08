@@ -27,6 +27,8 @@ import CommunityRepairPage from "@/pages/citizen/CommunityRepairPage";
 import IntegrityPage from "@/pages/citizen/IntegrityPage";
 import NotificationsPage from "@/pages/citizen/NotificationsPage";
 import ProfilePage from "@/pages/citizen/ProfilePage";
+import ProfileEditPage from "@/pages/citizen/ProfileEditPage";
+import ReportDetailPage from "@/pages/citizen/ReportDetailPage";
 import SettingsPage from "@/pages/citizen/SettingsPage";
 
 // Admin Pages
@@ -41,6 +43,7 @@ import EvidenceVaultPage from "@/pages/admin/EvidenceVaultPage";
 import AuditLogsPage from "@/pages/admin/AuditLogsPage";
 import DistrictIntegrityPage from "@/pages/admin/DistrictIntegrityPage";
 import UserManagementPage from "@/pages/admin/UserManagementPage";
+import AnalyticsPage from "@/pages/admin/AnalyticsPage";
 
 const queryClient = new QueryClient();
 
@@ -75,6 +78,8 @@ const App = () => (
                   <Route path="integrity" element={<IntegrityPage />} />
                   <Route path="notifications" element={<NotificationsPage />} />
                   <Route path="profile" element={<ProfilePage />} />
+                  <Route path="profile/edit" element={<ProfileEditPage />} />
+                  <Route path="report/:id" element={<ReportDetailPage />} />
                   <Route path="settings" element={<SettingsPage />} />
                 </Route>
 
@@ -98,6 +103,7 @@ const App = () => (
                   <Route path="audit-logs" element={<AuditLogsPage />} />
                   <Route path="district-integrity" element={<DistrictIntegrityPage />} />
                   <Route path="user-management" element={<UserManagementPage />} />
+                  <Route path="analytics" element={<AnalyticsPage />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />

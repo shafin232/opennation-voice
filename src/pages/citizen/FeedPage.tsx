@@ -10,13 +10,15 @@ import { ErrorBanner } from '@/components/shared/ErrorBanner';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Input } from '@/components/ui/input';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import type { Report } from '@/types';
 import {
   ThumbsUp, ThumbsDown, MapPin, Clock, Newspaper, FileText,
   ArrowUpRight, Shield, CheckCircle2, AlertCircle, Eye, Plus, Users, Zap,
-  MessageCircle, Share2, MoreHorizontal, User2
+  MessageCircle, Share2, MoreHorizontal, User2, Send, Image as ImageIcon, X
 } from 'lucide-react';
 
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
@@ -55,8 +57,219 @@ const catConfig: Record<string, { label: string; emoji: string }> = {
   environment: { label: 'পরিবেশ', emoji: '🌿' },
   safety: { label: 'নিরাপত্তা', emoji: '🛡️' },
   governance: { label: 'শাসন', emoji: '🏛️' },
+  human_rights: { label: 'মানবাধিকার', emoji: '✊' },
+  public_service: { label: 'জনসেবা', emoji: '🏢' },
   other: { label: 'অন্যান্য', emoji: '📌' },
 };
+
+interface Comment {
+  id: string;
+  body: string;
+  userName: string;
+  createdAt: string;
+  userId: string;
+}
+
+function CommentSection({ reportId, commentCount }: { reportId: string; commentCount: number }) {
+  const [open, setOpen] = useState(false);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [text, setText] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const { user } = useAuth();
+
+  const loadComments = async () => {
+    setLoading(true);
+    console.log('[Comments] Loading for report', reportId);
+    const { data } = await supabase
+      .from('comments')
+      .select('*')
+      .eq('report_id', reportId)
+      .order('created_at', { ascending: true });
+
+    if (data && data.length > 0) {
+      const userIds = [...new Set(data.map((c: any) => c.user_id))];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, name')
+        .in('user_id', userIds);
+      const profileMap = new Map((profiles ?? []).map((p: any) => [p.user_id, p.name]));
+
+      setComments(data.map((c: any) => ({
+        id: c.id,
+        body: c.body,
+        userName: profileMap.get(c.user_id) || 'Anonymous',
+        createdAt: c.created_at,
+        userId: c.user_id,
+      })));
+    } else {
+      setComments([]);
+    }
+    setLoading(false);
+  };
+
+  const handleToggle = () => {
+    if (!open) loadComments();
+    setOpen(!open);
+  };
+
+  const handleSubmit = async () => {
+    if (!text.trim() || !user) return;
+    setSubmitting(true);
+    console.log('[Comments] Submitting comment for report', reportId);
+    const { error } = await supabase.from('comments').insert({
+      report_id: reportId,
+      user_id: user.id,
+      body: text.trim(),
+    });
+    if (error) {
+      toast.error('মন্তব্য পোস্ট করতে ব্যর্থ');
+    } else {
+      setText('');
+      await loadComments();
+    }
+    setSubmitting(false);
+  };
+
+  return (
+    <div>
+      <Button
+        size="sm"
+        variant="ghost"
+        onClick={handleToggle}
+        className="flex-1 gap-1.5 rounded-xl text-xs h-9 text-muted-foreground hover:text-foreground"
+      >
+        <MessageCircle className="h-4 w-4" />
+        মন্তব্য {commentCount > 0 && `(${commentCount})`}
+      </Button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="px-4 pb-4 pt-2 border-t border-border/20">
+              {loading ? (
+                <div className="text-center py-3 text-xs text-muted-foreground">লোড হচ্ছে...</div>
+              ) : (
+                <div className="space-y-2.5 max-h-60 overflow-y-auto mb-3">
+                  {comments.length === 0 ? (
+                    <p className="text-xs text-muted-foreground text-center py-2">এখনো কোনো মন্তব্য নেই</p>
+                  ) : comments.map((c) => (
+                    <div key={c.id} className="flex gap-2">
+                      <div className="h-7 w-7 rounded-full bg-muted/30 flex items-center justify-center shrink-0">
+                        <User2 className="h-3.5 w-3.5 text-muted-foreground" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="bg-muted/15 rounded-xl px-3 py-2">
+                          <p className="text-xs font-semibold">{c.userName}</p>
+                          <p className="text-xs text-foreground/80">{c.body}</p>
+                        </div>
+                        <p className="text-[10px] text-muted-foreground mt-0.5 ml-1">{timeAgo(c.createdAt)}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Comment input */}
+              <div className="flex gap-2">
+                <Input
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  placeholder="মন্তব্য লিখুন..."
+                  className="text-xs h-9 rounded-xl bg-muted/10"
+                  onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSubmit()}
+                />
+                <Button
+                  size="sm"
+                  onClick={handleSubmit}
+                  disabled={!text.trim() || submitting}
+                  className="h-9 w-9 p-0 rounded-xl bg-primary text-primary-foreground"
+                >
+                  <Send className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function EvidenceGallery({ evidence }: { evidence: Report['evidence'] }) {
+  const [selected, setSelected] = useState<string | null>(null);
+  
+  const images = evidence.filter(e => e.type === 'image');
+  const videos = evidence.filter(e => e.type === 'video');
+
+  if (images.length === 0 && videos.length === 0) return null;
+
+  return (
+    <>
+      <div className={`px-4 pb-3 grid gap-1.5 ${
+        images.length === 1 ? 'grid-cols-1' : images.length === 2 ? 'grid-cols-2' : 'grid-cols-3'
+      }`}>
+        {images.slice(0, 4).map((e, i) => (
+          <div
+            key={e.id}
+            className="relative rounded-xl overflow-hidden cursor-pointer group"
+            onClick={() => setSelected(e.url)}
+          >
+            <img
+              src={e.url}
+              alt="Evidence"
+              className={`w-full object-cover ${images.length === 1 ? 'max-h-72' : 'h-36'} group-hover:scale-105 transition-transform duration-300`}
+              loading="lazy"
+            />
+            {e.blurred && (
+              <div className="absolute inset-0 backdrop-blur-xl bg-background/40 flex items-center justify-center">
+                <Eye className="h-6 w-6 text-muted-foreground" />
+              </div>
+            )}
+            {i === 3 && images.length > 4 && (
+              <div className="absolute inset-0 bg-background/60 flex items-center justify-center">
+                <span className="text-lg font-bold">+{images.length - 4}</span>
+              </div>
+            )}
+          </div>
+        ))}
+        {videos.map((v) => (
+          <div key={v.id} className="rounded-xl overflow-hidden">
+            <video src={v.url} controls className="w-full max-h-72 rounded-xl" preload="metadata" />
+          </div>
+        ))}
+      </div>
+
+      {/* Lightbox */}
+      <AnimatePresence>
+        {selected && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-background/90 backdrop-blur-md flex items-center justify-center p-4"
+            onClick={() => setSelected(null)}
+          >
+            <Button
+              size="sm"
+              variant="ghost"
+              className="absolute top-4 right-4 text-foreground"
+              onClick={() => setSelected(null)}
+            >
+              <X className="h-5 w-5" />
+            </Button>
+            <img src={selected} alt="Evidence" className="max-w-full max-h-[85vh] rounded-xl" />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
 
 export default function FeedPage() {
   const { reports, loading, error, fetchReports, loadMore, hasMore } = useReports();
@@ -82,7 +295,6 @@ export default function FeedPage() {
     return () => { supabase.removeChannel(channel); };
   }, [fetchReports]);
 
-  // Show vote errors as toast
   useEffect(() => {
     if (voteError) toast.error(voteError);
   }, [voteError]);
@@ -94,7 +306,7 @@ export default function FeedPage() {
     setVotingId(null);
   };
 
-  const handleShare = (report: typeof reports[0]) => {
+  const handleShare = (report: Report) => {
     const text = `${report.title} - ${report.location.district}`;
     if (navigator.share) {
       navigator.share({ title: report.title, text, url: window.location.href }).catch(() => {});
@@ -188,10 +400,14 @@ export default function FeedPage() {
               return (
                 <motion.div key={report.id} variants={slamIn} layout>
                   <div className="glass-panel rounded-2xl overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                    {/* Post header - FB style */}
+                    {/* Post header */}
                     <div className="p-4 pb-3 flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 ring-2 ring-primary/20">
-                        <User2 className="h-5 w-5 text-primary" />
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 ring-2 ring-primary/20 overflow-hidden">
+                        {report.authorAvatar ? (
+                          <img src={report.authorAvatar} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                          <User2 className="h-5 w-5 text-primary" />
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
@@ -212,7 +428,7 @@ export default function FeedPage() {
                       </Badge>
                     </div>
 
-                    {/* Category tag */}
+                    {/* Category */}
                     <div className="px-4 pb-2">
                       <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-muted/40 text-muted-foreground">
                         {cat.emoji} {cat.label}
@@ -220,10 +436,13 @@ export default function FeedPage() {
                     </div>
 
                     {/* Content */}
-                    <div className="px-4 pb-3">
-                      <h3 className="text-base font-bold text-foreground mb-1.5 leading-snug">{report.title}</h3>
+                    <div className="px-4 pb-3 cursor-pointer" onClick={() => navigate(`/app/report/${report.id}`)}>
+                      <h3 className="text-base font-bold text-foreground mb-1.5 leading-snug hover:text-primary transition-colors">{report.title}</h3>
                       <p className="text-sm text-muted-foreground leading-relaxed line-clamp-4">{report.description}</p>
                     </div>
+
+                    {/* Evidence gallery */}
+                    <EvidenceGallery evidence={report.evidence} />
 
                     {/* Truth meter */}
                     <div className="mx-4 mb-3 p-3 rounded-xl bg-muted/10 border border-border/20">
@@ -251,9 +470,14 @@ export default function FeedPage() {
                       <span className="flex items-center gap-1">
                         <ThumbsDown className="h-3 w-3 text-destructive/70" /> {report.doubtCount} সন্দেহ
                       </span>
+                      {(report.commentCount ?? 0) > 0 && (
+                        <span className="flex items-center gap-1">
+                          <MessageCircle className="h-3 w-3" /> {report.commentCount} মন্তব্য
+                        </span>
+                      )}
                     </div>
 
-                    {/* Action bar - FB style */}
+                    {/* Action bar */}
                     <div className="border-t border-border/20 mx-4" />
                     <div className="px-2 py-1.5 flex items-center">
                       <Button
@@ -284,6 +508,7 @@ export default function FeedPage() {
                         <ThumbsDown className={`h-4 w-4 ${report.userVote === 'doubt' ? 'fill-destructive' : ''}`} />
                         সন্দেহ
                       </Button>
+                      <CommentSection reportId={report.id} commentCount={report.commentCount ?? 0} />
                       <Button
                         size="sm"
                         variant="ghost"
@@ -295,7 +520,6 @@ export default function FeedPage() {
                       </Button>
                     </div>
 
-                    {/* Self-post hint */}
                     {isOwnPost && (
                       <div className="px-4 pb-3">
                         <p className="text-[10px] text-muted-foreground/50 text-center">নিজের রিপোর্টে ভোট দেওয়া যায় না</p>

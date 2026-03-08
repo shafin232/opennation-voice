@@ -5,9 +5,11 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Badge } from '@/components/ui/badge';
 import { ReputationBadge } from '@/components/shared/ReputationBadge';
 import { CircularProgress } from '@/components/shared/CircularProgress';
-import { Phone, MapPin, Calendar, Mail, Shield, Activity, Award, ExternalLink } from 'lucide-react';
+import { Phone, MapPin, Calendar, Mail, Shield, Activity, Award, ExternalLink, Edit2 } from 'lucide-react';
 import { IntegrityBreakdown } from '@/components/shared/IntegrityBreakdown';
 import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 const slamIn = {
   hidden: { scale: 0.92, opacity: 0, y: 12 },
@@ -32,6 +34,7 @@ export default function ProfilePage() {
       });
   }, [user?.id]);
 
+  const navigate = useNavigate();
   if (!user) return null;
 
   const trustVal = liveScores?.trust ?? user.trustScore;
@@ -82,6 +85,9 @@ export default function ProfilePage() {
               <ReputationBadge score={avgScore} size="lg" />
             </div>
             <h2 className="text-2xl font-bold tracking-tight">{user.name}</h2>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/app/profile/edit')} className="mt-2 text-xs text-primary gap-1.5">
+              <Edit2 className="h-3 w-3" /> প্রোফাইল এডিট করুন
+            </Button>
             {user.email && (
               <p className="text-xs text-muted-foreground mt-1 flex items-center justify-center gap-1.5">
                 <Mail className="h-3 w-3" />{user.email}

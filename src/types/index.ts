@@ -48,8 +48,10 @@ export interface Report {
   evidence: Evidence[];
   authorId: string;
   authorName: string;
+  authorAvatar?: string;
   supportCount: number;
   doubtCount: number;
+  commentCount?: number;
   userVote?: 'support' | 'doubt' | null;
   status: 'pending' | 'verified' | 'hidden' | 'resolved';
   truthProbability?: number;
