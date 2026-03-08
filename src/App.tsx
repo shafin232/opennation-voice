@@ -30,6 +30,7 @@ import ProfilePage from "@/pages/citizen/ProfilePage";
 import ProfileEditPage from "@/pages/citizen/ProfileEditPage";
 import ReportDetailPage from "@/pages/citizen/ReportDetailPage";
 import SettingsPage from "@/pages/citizen/SettingsPage";
+import CitizenTenderPage from "@/pages/citizen/TenderAnalysisPage";
 
 // Admin Pages
 import ModerationPage from "@/pages/admin/ModerationPage";
