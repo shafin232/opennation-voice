@@ -30,6 +30,7 @@ import ProfilePage from "@/pages/citizen/ProfilePage";
 import ProfileEditPage from "@/pages/citizen/ProfileEditPage";
 import ReportDetailPage from "@/pages/citizen/ReportDetailPage";
 import SettingsPage from "@/pages/citizen/SettingsPage";
+import CitizenTenderPage from "@/pages/citizen/TenderAnalysisPage";
 
 // Admin Pages
 import ModerationPage from "@/pages/admin/ModerationPage";
@@ -75,6 +76,7 @@ const App = () => (
                   <Route path="projects" element={<ProjectsPage />} />
                   <Route path="rti" element={<RTIPage />} />
                   <Route path="hospitals" element={<HospitalsPage />} />
+                  <Route path="tenders" element={<CitizenTenderPage />} />
                   <Route path="community-repair" element={<CommunityRepairPage />} />
                   <Route path="integrity" element={<IntegrityPage />} />
                   <Route path="notifications" element={<NotificationsPage />} />
