@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type { User, AuthState, UserRole } from '@/types';
 
 interface AuthContextType extends AuthState {
-  signUp: (email: string, password: string, meta?: { name?: string; district?: string }) => Promise<void>;
+  signUp: (email: string, password: string, meta?: { name?: string; district?: string; phone?: string; nid_hash?: string }) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
