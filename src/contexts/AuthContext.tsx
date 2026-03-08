@@ -91,12 +91,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = useCallback(async (email: string, password: string, meta?: { name?: string; district?: string }) => {
+  const signUp = useCallback(async (email: string, password: string, meta?: { name?: string; district?: string; phone?: string; nid_hash?: string }) => {
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { name: meta?.name || '', district: meta?.district || '' },
+        data: {
+          name: meta?.name || '',
+          district: meta?.district || '',
+          phone: meta?.phone || '',
+          nid_hash: meta?.nid_hash || '',
+        },
         emailRedirectTo: window.location.origin,
       },
     });
