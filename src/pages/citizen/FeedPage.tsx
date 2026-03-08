@@ -407,8 +407,12 @@ export default function FeedPage() {
                   <div className="glass-panel rounded-2xl overflow-hidden hover:shadow-lg transition-shadow duration-300">
                     {/* Post header */}
                     <div className="p-4 pb-3 flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 ring-2 ring-primary/20 overflow-hidden">
-                        {report.authorAvatar ? (
+                      <div className={`h-10 w-10 rounded-full flex items-center justify-center shrink-0 ring-2 overflow-hidden ${
+                        report.isAnonymous ? 'bg-muted/30 ring-muted/30' : 'bg-primary/10 ring-primary/20'
+                      }`}>
+                        {report.isAnonymous ? (
+                          <EyeOff className="h-5 w-5 text-muted-foreground" />
+                        ) : report.authorAvatar ? (
                           <img src={report.authorAvatar} alt="" className="h-full w-full object-cover" />
                         ) : (
                           <User2 className="h-5 w-5 text-primary" />
@@ -416,9 +420,14 @@ export default function FeedPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold text-sm text-foreground truncate">{report.authorName}</span>
+                          <span className="font-semibold text-sm text-foreground truncate">
+                            {report.isAnonymous ? '🔒 বেনামী নাগরিক' : (report.authorAlias || report.authorName)}
+                          </span>
                           {isOwnPost && (
                             <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-primary/30 text-primary">আপনি</Badge>
+                          )}
+                          {report.isAnonymous && (
+                            <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-muted-foreground/30 text-muted-foreground">গোপনীয়</Badge>
                           )}
                         </div>
                         <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
