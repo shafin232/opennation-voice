@@ -25,7 +25,8 @@ async function fetchProfile(userId: string): Promise<User | null> {
   if (!profile) return null;
 
   const rolePriority: UserRole[] = ['superadmin', 'admin', 'moderator', 'citizen'];
-  const role: UserRole = rolePriority.find(r => roles?.some(ur => ur.role === r)) ?? 'citizen';
+  const allRoles: UserRole[] = roles?.map(ur => ur.role as UserRole) ?? ['citizen'];
+  const role: UserRole = rolePriority.find(r => allRoles.includes(r)) ?? 'citizen';
 
   return {
     id: userId,
@@ -33,6 +34,7 @@ async function fetchProfile(userId: string): Promise<User | null> {
     phone: profile.phone || '',
     email: profile.email || '',
     role,
+    roles: allRoles,
     district: profile.district || '',
     trustScore: profile.trust_score ?? 50,
     truthScore: profile.truth_score ?? 50,

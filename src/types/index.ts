@@ -8,6 +8,7 @@ export interface User {
   phone: string;
   email?: string;
   role: UserRole;
+  roles: UserRole[];
   district: string;
   trustScore: number;
   truthScore: number;

@@ -22,8 +22,12 @@ export function ProtectedRoute({ children, allowedRoles }: Props) {
     return <Navigate to="/login" replace />;
   }
 
-  if (allowedRoles && user && !allowedRoles.includes(user.role)) {
-    return <Navigate to={user.role === 'citizen' ? '/app' : '/admin'} replace />;
+  if (allowedRoles && user) {
+    const userRoles = user.roles || [user.role];
+    const hasAccess = allowedRoles.some(r => userRoles.includes(r));
+    if (!hasAccess) {
+      return <Navigate to={user.role === 'citizen' ? '/app' : '/admin'} replace />;
+    }
   }
 
   return <>{children}</>;
