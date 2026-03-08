@@ -344,7 +344,7 @@ export default function FeedPage() {
           </div>
           <h1 className="text-3xl md:text-4xl font-bold tracking-tighter leading-[0.95]">
             {user ? (
-              <>স্বাগতম, <span className="gradient-text-neon">{user.name?.split(' ')[0]}</span></>
+              <>স্বাগতম, <span className="gradient-text-neon">{user.citizenAlias || user.name?.split(' ')[0]}</span></>
             ) : 'ফিড'}
           </h1>
         </div>
