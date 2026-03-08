@@ -78,6 +78,8 @@ const App = () => (
                   <Route path="integrity" element={<IntegrityPage />} />
                   <Route path="notifications" element={<NotificationsPage />} />
                   <Route path="profile" element={<ProfilePage />} />
+                  <Route path="profile/edit" element={<ProfileEditPage />} />
+                  <Route path="report/:id" element={<ReportDetailPage />} />
                   <Route path="settings" element={<SettingsPage />} />
                 </Route>
 
