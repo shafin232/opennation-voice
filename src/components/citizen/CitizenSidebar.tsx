@@ -55,11 +55,11 @@ export function CitizenSidebar() {
       <SidebarHeader className="p-4 pb-3">
         {!collapsed ? (
           <div className="flex items-center gap-3">
-            <img src={logoImg} alt="OpenNation" className="h-14 object-contain" />
+            <img src={logoImg} alt="OpenNation" className="h-20 object-contain" />
           </div>
         ) : (
           <div className="flex justify-center">
-            <img src={logoImg} alt="OpenNation" className="h-10 w-10 object-contain" />
+            <img src={logoImg} alt="OpenNation" className="h-12 w-12 object-contain" />
           </div>
         )}
       </SidebarHeader>
