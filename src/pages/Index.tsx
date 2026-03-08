@@ -100,7 +100,7 @@ const Index = () => {
       >
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <img src={logoImg} alt="OpenNation" className="h-8 object-contain" />
+            <span className="text-xl font-bold tracking-tight text-foreground">OpenNation</span>
           </div>
           <div className="hidden md:flex items-center gap-8">
             {['Features', 'How it Works', 'FAQ'].map(item => (
