@@ -53,6 +53,7 @@ const App = () => (
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Navigate to="/app" replace />} />
+                <Route path="/login" element={<LoginPage />} />
 
                 {/* Citizen Area */}
                 <Route
