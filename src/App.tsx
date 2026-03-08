@@ -41,6 +41,7 @@ import EvidenceVaultPage from "@/pages/admin/EvidenceVaultPage";
 import AuditLogsPage from "@/pages/admin/AuditLogsPage";
 import DistrictIntegrityPage from "@/pages/admin/DistrictIntegrityPage";
 import UserManagementPage from "@/pages/admin/UserManagementPage";
+import AnalyticsPage from "@/pages/admin/AnalyticsPage";
 
 const queryClient = new QueryClient();
 
