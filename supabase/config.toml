@@ -1,0 +1,19 @@
+project_id = "ydnvikjvupknbkffrzcf"
+
+[functions.reputation-engine]
+verify_jwt = false
+
+[functions.truth-engine]
+verify_jwt = false
+
+[functions.locality-engine]
+verify_jwt = false
+
+[functions.procurement-risk]
+verify_jwt = false
+
+[functions.integrity-index]
+verify_jwt = false
+
+[functions.invite-user]
+verify_jwt = false
